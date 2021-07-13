@@ -1,0 +1,22 @@
+{
+    "name": "reb3r/ado-api-php-client",
+    "description": "Azure DevOps API PHP Client",
+    "type": "library",
+    "require": {
+        "guzzlehttp/guzzle": "^7.3",
+        "illuminate/collections": "^8.47"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
+    "license": "GPL v3.0",
+    "authors": [
+        {
+            "name": "Christian Reber",
+            "email": "info@christianreber.eu"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"Reb3r\\ADOAPC\\": "src/"}
+    }
+}
