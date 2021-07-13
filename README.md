@@ -17,6 +17,8 @@ Other things to include:
   - **Technology stack**: supportet PHP versions (>= 7.3)
   - **Status**:  Pre-Alpha. For details consult [CHANGELOG](CHANGELOG.md).
 
+  [![Build Status](https://travis-ci.com/reb3r/ado-api-php-client.svg?branch=main)](https://travis-ci.com/reb3r/ado-api-php-client)
+
 ## Dependencies
 
 This library depends on some other open source software. These depencies are installed via composer. For detailed information please consult [composer.json](composer.json)

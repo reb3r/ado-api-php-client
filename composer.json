@@ -3,6 +3,7 @@
     "description": "Azure DevOps API PHP Client",
     "type": "library",
     "require": {
+        "php": "^7.3|^8.0",
         "guzzlehttp/guzzle": "^7.3",
         "illuminate/collections": "^8.47"
     },
