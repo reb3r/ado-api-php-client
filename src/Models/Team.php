@@ -12,7 +12,7 @@ class Team
     public function __construct(
         private string $id,
         private string $description,
-        private array $identity = [],
+        private array $identity,
         private string $identityUrl,
         private string $name,
         private string $projectId,
