@@ -4,15 +4,9 @@ namespace Reb3r\ADOAPC\Models;
 
 use Reb3r\ADOAPC\AzureDevOpsApiClient;
 
-class AzureDevOpsWorkitem
+class Workitem
 {
 
-    /** @var int */
-    public $id;
-    /** @var string */
-    public $title;
-    /** @var string */
-    public $project;
     /** @var string */
     public $htmlLink;
     /** @var string */
@@ -22,7 +16,7 @@ class AzureDevOpsWorkitem
     /** @var string */
     public $reprosteps;
 
-    public function __construct(array $ticketArr)
+    /*public function __construct(array $ticketArr)
     {
         // different JSON depending on search result or Create return value
         if (array_key_exists('id', $ticketArr)) {
@@ -39,11 +33,31 @@ class AzureDevOpsWorkitem
         }
         foreach ($ticketArr['fields'] as $key => $value) {
             // modify Key. Get string after last "."
-            $key = array_pop(explode('.', $key));
+            $elements = explode('.', $key);
+            $key = array_pop($elements);
 
             //Finally set the Attributes
-            $this->{mb_strtolower((string) $key)} = $value;
+            $this->{mb_strtolower($key)} = $value;
         }
+    }*/
+    public function __construct(
+        private string $id,
+        private string $title,
+        private array $project,
+        private array $links,
+        private string $url,
+
+    ) {
+    }
+
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    public function getProjectName()
+    {
+        return $this->project['name'];
     }
 
     public function isDone(): bool
@@ -65,5 +79,16 @@ class AzureDevOpsWorkitem
             $this->htmlLink = $azureDevOpsWorkitem->htmlLink;
         }
         return $this->htmlLink;
+    }
+
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            $data['id'],
+            $data['fields']['System.Title'] ?? '',
+            $data['project'] ?? [],
+            $data['links'] ?? [],
+            $data['url']
+        );
     }
 }

@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Reb3r\ADOAPC;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Collection;
 use Reb3r\ADOAPC\Exceptions\Exception;
 use Reb3r\ADOAPC\Exceptions\WorkItemNotFoundException;
 use Reb3r\ADOAPC\Exceptions\WorkItemNotUniqueException;
-use Reb3r\ADOAPC\Models\AzureDevOpsWorkitem;
+use Reb3r\ADOAPC\Models\Workitem;
+use Reb3r\ADOAPC\Models\Team;
+use RuntimeException;
 
 class AzureDevOpsApiClient
 {
@@ -27,10 +30,8 @@ class AzureDevOpsApiClient
     private $projectBaseUrl;
     /** @var Client */
     private $guzzle;
-    /** @var string */
-    private $team;
 
-    public function __construct($username, $secret, $base_url, $organization, $project)
+    public function __construct(string $username, string $secret, string $base_url, string $organization, string $project)
     {
         $this->username = $username;
         $this->password = $secret;
@@ -59,10 +60,10 @@ class AzureDevOpsApiClient
      * @param string $description = '' (ReproSteps)
      * @param Collection $attachments (can be an empty Collection)
      *
-     * @return AzureDevOpsWorkitem the created item
+     * @return Workitem the created item
      * @throws Exception when Request fails
      */
-    public function createBug(string $title, string $description, Collection $attachments): AzureDevOpsWorkitem
+    public function createBug(string $title, string $description, Collection $attachments): Workitem
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/work items/create?view=azure-devops-rest-6.1
         $type = 'Bug';
@@ -104,7 +105,7 @@ class AzureDevOpsApiClient
             }
         }
 
-        if ($this->azureDevOpsConfiguration->path != null) {
+        /*if ($this->azureDevOpsConfiguration->path != null) {
             try {
                 $requestBody[] = [
                     'op' => 'add',
@@ -124,7 +125,7 @@ class AzureDevOpsApiClient
                 ];
             } catch (Exception $e) {
             }
-        }
+        }*/
         $headers = ['Content-Type' => 'application/json-patch+json'];
         $response = $this->guzzle->post($url, [
             'auth' => [$this->username, $this->password],
@@ -132,7 +133,7 @@ class AzureDevOpsApiClient
             'headers' => $headers
         ]);
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
-            return new AzureDevOpsWorkitem(json_decode($response->getBody()->getContents(), true));
+            return Workitem::fromArray(json_decode($response->getBody()->getContents(), true));
         }
         throw new Exception('Could not create Bug: ' . $response->getStatusCode());
     }
@@ -143,40 +144,36 @@ class AzureDevOpsApiClient
      *
      * @return string $id
      * @throws Exception when no team or more than one team was found
+     * @deprecated
      */
     public function getTeamIdByName(string $teamName): string
     {
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/core/teams/get%20all%20teams?view=azure-devops-rest-6.0
-        $query = '?api-version=6.0-preview.3';
-        $requestUrl = 'teams';
-        $url = $this->baseUrl . $this->organization  . '/_apis/' . $requestUrl . $query;
-        $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
-        if ($response->getStatusCode() >= 400) {
-            throw new Exception('Could not get Team: ' . $response->getStatusCode());
-        }
-        $teams = collect(json_decode($response->getBody()->getContents(), true)['value']);
-        $team = $teams->whereStrict('name', $teamName);
+        $teams = $this->getTeams();
+        $team = $teams->filter(function (Team $team) use ($teamName) {
+            $team->getName() === $teamName;
+        });
         if ($team->count() < 1) {
             throw new Exception('Team not found');
         }
         if ($team->count() > 1) {
             throw new Exception('More than one team found');
         }
-        return $team->first()['id'];
+        return $team->first()->getId();
     }
+
 
     /**
      * append the new reprosteps text to the azure devops workitem
-     * @param AzureDevOpsWorkitem $azureDevOpsWorkitem
+     * @param Workitem $workitem
      * @param string $reproStepsText
      * @param Collection $attachments (can be an empty Collection)
      * @return void
      * @throws Exception when request fails
      */
-    public function updateWorkitemReproStepsAndAttachments(AzureDevOpsWorkitem $azureDevOpsWorkitem, string $reproStepsText, Collection $attachments): void
+    public function updateWorkitemReproStepsAndAttachments(Workitem $workitem, string $reproStepsText, Collection $attachments): void
     {
         $query = '?api-version=6.0';
-        $requestUrl = 'wit/workitems/' . $azureDevOpsWorkitem->id;
+        $requestUrl = 'wit/workitems/' . $workitem->id;
         $url = $this->projectBaseUrl . $requestUrl . $query;
 
         $requestBody = [
@@ -219,18 +216,18 @@ class AzureDevOpsApiClient
 
     /**
      * Adds a comment to a workitem
-     * @param AzureDevOpsWorkitem $azureDevOpsWorkitem
+     * @param Workitem $workitem
      * @param string $commentText
      *
      * @return void
      * @throws Exception when request fails
      */
-    public function addCommentToWorkitem(AzureDevOpsWorkitem $azureDevOpsWorkitem, string $commentText): void
+    public function addCommentToWorkitem(Workitem $workitem, string $commentText): void
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/comments/add?view=azure-devops-rest-6.0#commentmention
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/core/teams/get%20all%20teams?view=azure-devops-rest-6.0#webapiteam
         $query = '?api-version=6.0-preview.3';
-        $requestUrl = 'wit/workitems/' . $azureDevOpsWorkitem->id . '/comments';
+        $requestUrl = 'wit/workitems/' . $workitem->id . '/comments';
         $url = $this->projectBaseUrl . $requestUrl . $query;
 
         // https://stackoverflow.com/questions/58558388/ping-user-in-azure-devops-comment
@@ -283,15 +280,15 @@ class AzureDevOpsApiClient
      * gets the workitem from azure dev ops from an api url
      * @param string $apiUrl
 
-     * @return AzureDevOpsWorkitem
+     * @return Workitem
      * @throws Exception when Request fails
      */
-    public function getWorkItemFromApiUrl(string $apiUrl): AzureDevOpsWorkitem
+    public function getWorkItemFromApiUrl(string $apiUrl): Workitem
     {
         $response = $this->guzzle->get($apiUrl, ['auth' => [$this->username, $this->password]]);
 
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
-            return new AzureDevOpsWorkitem(json_decode($response->getBody()->getContents(), true));
+            return Workitem::fromArray(json_decode($response->getBody()->getContents(), true));
         } else {
             throw new Exception('Could not create Bug: ' . $response->getStatusCode());
         }
@@ -299,14 +296,14 @@ class AzureDevOpsApiClient
 
     /**
      * gets the workitem from azure dev ops that belogs to the given otrsticket
-     * @param string $otrsTicket
+     * @param string $searchtext
 
-     * @return AzureDevOpsWorkitem
+     * @return Workitem
      * @throws WorkItemNotFoundException if a workitem with the name can not be found
      * @throws WorkItemNotUniqueException if more than one workitem is found
      * @throws Exception when Request fails
      */
-    public function searchWorkitem($searchtext): AzureDevOpsWorkitem
+    public function searchWorkitem($searchtext): Workitem
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/search/work%20item%20search%20results/fetch%20work%20item%20search%20results?view=azure-devops-rest-6.0
 
@@ -339,7 +336,7 @@ class AzureDevOpsApiClient
             }
             $result = json_decode($response->getBody()->getContents(), true)['results'][0];
 
-            return new AzureDevOpsWorkitem($result);
+            return Workitem::fromArray($result);
         }
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
@@ -369,8 +366,8 @@ class AzureDevOpsApiClient
             $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
 
             $retCol = collect();
-            $result->each(function ($value) use ($retCol) {
-                $retCol->push(new AzureDevOpsWorkitem($value));
+            $result->each(function (array $row) use ($retCol) {
+                $retCol->push(Workitem::fromArray($row));
             });
             return $retCol;
         }
@@ -393,7 +390,7 @@ class AzureDevOpsApiClient
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
 
-    public function getBacklogWorkItems(string $team, string $backlogId)
+    public function getBacklogWorkItems(string $team, string $backlogId): Collection
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/work/backlogs/get%20backlog%20level%20work%20items?view=azure-devops-rest-6.0
         $query = '?api-version=6.0-preview.1';
@@ -416,13 +413,9 @@ class AzureDevOpsApiClient
      * @return string
      * @throws Exception when path could not be found
      */
-    public function getCurrentIterationPath(): string
+    public function getCurrentIterationPath(string $teamname): string
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/work/teamsettings/get?view=azure-devops-rest-6.0
-        $teamname = $this->team;
-        if ($this->team === null) {
-            throw new Exception('No Team configured');
-        }
         $teamId = $this->getTeamIdByName($teamname);
         $query = '?$timeframe=current&api-version=6.0';
         $requestUrl = 'work/teamsettings/iterations';
@@ -443,6 +436,7 @@ class AzureDevOpsApiClient
 
     /**
      * Get the teams of the configured organization and project
+     * @throws Exception
      */
     public function getTeams(): Collection
     {
@@ -453,7 +447,65 @@ class AzureDevOpsApiClient
 
         $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
-            $result = collect(json_decode($response->getBody()->getContents(), true)('value'));
+            $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
+            $retCol = collect();
+            foreach ($result as $row) {
+                $retCol->push(Team::fromArray($row));
+            }
+
+            return $retCol;
+        }
+        throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
+    }
+
+    public function getRootQueryFolders($depth = 0): Collection
+    {
+        // https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/queries/list?view=azure-devops-rest-6.0
+        $query = '?$depth=' . $depth . '&api-version=6.0';
+        $requestUrl = '_apis/wit/queries';
+        $url = 'https://dev.azure.com/'  . $this->organization .  '/' . $this->project . '/' . $requestUrl . $query;
+
+        $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
+        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+            $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
+
+            return $result;
+        }
+        throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
+    }
+
+    public function getAllQueries(): Collection
+    {
+        $queryFolders = $this->getRootQueryFolders(1);
+
+        $queries = collect();
+        foreach ($queryFolders as $queryFolder) {
+            if ($queryFolder['hasChildren'] === true) {
+                $queries = $queries->merge($queryFolder['children']);
+            }
+        }
+        return $queries;
+    }
+
+    /**
+     * @see https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/wiql/query%20by%20id?view=azure-devops-rest-6.0
+     * 
+     * @param string $teamname 
+     * @return Collection 
+     * @throws Exception 
+     * @throws GuzzleException 
+     * @throws RuntimeException 
+     */
+    public function getQueryResultById(string $teamname): Collection
+    {
+        $teamId = $this->getTeamIdByName($teamname);
+
+        $query = '?api-version=6.0';
+        $requestUrl = '/_apis/wit/wiql/' . $this->azureDevOpsConfiguration->query_id;
+        $url = $this->baseUrl . $this->organization  . '/' . $this->project . '/' . $teamId . $requestUrl . $query;
+        $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
+        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+            $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
 
             return $result;
         }
