@@ -496,7 +496,7 @@ class AzureDevOpsApiClient
      * @throws GuzzleException 
      * @throws RuntimeException 
      */
-    public function getQueryResultById(string $teamname, int $queryId): Collection
+    public function getQueryResultById(string $teamname, string $queryId): Collection
     {
         $teamId = $this->getTeamIdByName($teamname);
 
