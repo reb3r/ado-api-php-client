@@ -125,7 +125,7 @@ class Workitem
             $data['fields']['System.CreatedDate'] ?? '',
             $data['fields']['System.IterationPath'] ?? '',
             $data['fields']['System.WorkItemType'] ?? '',
-            ''
+            $data['fields']['System.Description'] ?? '',
         );
     }
 }
