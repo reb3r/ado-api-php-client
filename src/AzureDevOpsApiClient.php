@@ -150,7 +150,7 @@ class AzureDevOpsApiClient
     {
         $teams = $this->getTeams();
         $team = $teams->filter(function (Team $team) use ($teamName) {
-            $team->getName() === $teamName;
+            return $team->getName() === $teamName;
         });
         if ($team->count() < 1) {
             throw new Exception('Team not found');
