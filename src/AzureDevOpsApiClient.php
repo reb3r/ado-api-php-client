@@ -458,6 +458,32 @@ class AzureDevOpsApiClient
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
 
+    /**
+     * Get all the teams visible by api
+     * @return Collection 
+     * @throws GuzzleException 
+     * @throws RuntimeException 
+     * @throws Exception 
+     */
+    public function getAllTeams(): Collection
+    {
+        // https://docs.microsoft.com/en-us/rest/api/azure/devops/core/teams/get-all-teams?view=azure-devops-rest-6.0
+        $query = '?api-version=6.0-preview.3';
+        $requestUrl = '/_apis/teams';
+        $url = $this->baseUrl . $this->organization  . '/' . $requestUrl . $query;
+        $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
+        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+            $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
+            $retCol = collect();
+            foreach ($result as $row) {
+                $retCol->push(Team::fromArray($row));
+            }
+
+            return $retCol;
+        }
+        throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
+    }
+
     public function getRootQueryFolders($depth = 0): Collection
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/queries/list?view=azure-devops-rest-6.0
@@ -506,6 +532,28 @@ class AzureDevOpsApiClient
         $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
             $result = collect(json_decode($response->getBody()->getContents(), true)['workItems']);
+
+            return $result;
+        }
+        throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
+    }
+
+    /**
+     * Gets the projects
+     * @return Collection 
+     * @throws GuzzleException 
+     * @throws RuntimeException 
+     * @throws Exception 
+     */
+    public function getProjects()
+    {
+        // https://docs.microsoft.com/en-us/rest/api/azure/devops/core/projects/list?view=azure-devops-rest-6.0
+        $query = '?api-version=6.0';
+        $requestUrl = '/_apis/projects';
+        $url = $this->baseUrl . $this->organization  . '/' . $requestUrl . $query;
+        $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
+        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+            $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
 
             return $result;
         }
