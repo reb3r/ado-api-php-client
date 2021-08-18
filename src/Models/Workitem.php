@@ -12,8 +12,6 @@ class Workitem
     /** @var string */
     public $apiUrl;
     /** @var string */
-    public $state;
-    /** @var string */
     public $reprosteps;
 
     /*public function __construct(array $ticketArr)
@@ -46,8 +44,17 @@ class Workitem
         private array $project,
         private array $links,
         private string $url,
-
+        private string $state,
+        private string $createddate,
+        private string $iterationpath,
+        private string $workitemtype,
+        private string $description
     ) {
+    }
+
+    public function getId()
+    {
+        return $this->id;
     }
 
     public function getTitle()
@@ -66,6 +73,31 @@ class Workitem
             return true;
         }
         return false;
+    }
+
+    public function getState()
+    {
+        return $this->state;
+    }
+
+    public function getCreatedDate()
+    {
+        return $this->createddate;
+    }
+
+    public function getIterationpath()
+    {
+        return $this->iterationpath;
+    }
+
+    public function getWorkitemtype()
+    {
+        return $this->workitemtype;
+    }
+
+    public function getDescription()
+    {
+        return $this->description;
     }
 
     public function getHtmlLink(AzureDevOpsApiClient $azureApiClient): string
@@ -88,7 +120,12 @@ class Workitem
             $data['fields']['System.Title'] ?? '',
             $data['project'] ?? [],
             $data['links'] ?? [],
-            $data['url']
+            $data['url'],
+            $data['fields']['System.State'] ?? '',
+            $data['fields']['System.CreatedDate'] ?? '',
+            $data['fields']['System.IterationPath'] ?? '',
+            $data['fields']['System.WorkItemType'] ?? '',
+            ''
         );
     }
 }

@@ -496,16 +496,16 @@ class AzureDevOpsApiClient
      * @throws GuzzleException 
      * @throws RuntimeException 
      */
-    public function getQueryResultById(string $teamname): Collection
+    public function getQueryResultById(string $teamname, int $queryId): Collection
     {
         $teamId = $this->getTeamIdByName($teamname);
 
         $query = '?api-version=6.0';
-        $requestUrl = '/_apis/wit/wiql/' . $this->azureDevOpsConfiguration->query_id;
+        $requestUrl = '/_apis/wit/wiql/' . $queryId;
         $url = $this->baseUrl . $this->organization  . '/' . $this->project . '/' . $teamId . $requestUrl . $query;
         $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
-            $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
+            $result = collect(json_decode($response->getBody()->getContents(), true)['workItems']);
 
             return $result;
         }
