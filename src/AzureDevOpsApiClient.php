@@ -358,7 +358,7 @@ class AzureDevOpsApiClient
 
         $query = '?api-version=6.0&ids=' . $idsString;
         $requestUrl = 'wit/workitems';
-        $url = 'https://dev.azure.com/'  . $this->organization . '/' . $this->project . '/_apis/' . $requestUrl . $query;
+        $url = $this->projectBaseUrl  . $requestUrl . $query;
 
         $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
 

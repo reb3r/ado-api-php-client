@@ -1,0 +1,4 @@
+*.xml
+html-coverage/
+TEST-xml-coverage/
+infection*.log
