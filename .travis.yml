@@ -6,6 +6,9 @@ cache:
     - vendor
 php:
 - 8.0
+
+before_install: phpenv config-add build/pcov.ini
+
 install:
 - composer install
 
@@ -15,4 +18,4 @@ before_script:
 
 script:
 - vendor/bin/phpunit tests
-- ./infection.phar --min-msi=48 --threads=4
+- ./infection.phar --min-msi=48 --min-covered-msi=70 --threads=4
