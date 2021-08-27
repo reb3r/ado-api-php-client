@@ -8,8 +8,7 @@ php:
 - 8.0
 
 before_install: 
-- pecl install pcov  
-- phpenv config-add build/pcov.ini
+- pecl install pcov
 
 install:
 - composer install
