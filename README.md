@@ -1,3 +1,5 @@
+[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Freb3r%2Fado-api-php-client%2Fmain)](https://dashboard.stryker-mutator.io/reports/github.com/reb3r/ado-api-php-client/main)
+
 ## Installation
 
 Install this PHP package with composer:
