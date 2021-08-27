@@ -19,4 +19,4 @@ before_script:
 
 script:
 - vendor/bin/phpunit tests
-- ./infection.phar --min-msi=48 --min-covered-msi=70 --threads=4
+- ./infection.phar --min-msi=50 --min-covered-msi=70 --threads=4

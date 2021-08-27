@@ -17,7 +17,7 @@ Other things to include:
   - **Technology stack**: supportet PHP versions (>= 7.3)
   - **Status**:  Pre-Alpha. For details consult [CHANGELOG](CHANGELOG.md).
 
-  [![Build Status](https://travis-ci.com/reb3r/ado-api-php-client.svg?branch=main)](https://travis-ci.com/reb3r/ado-api-php-client)
+  [![Build Status](https://api.travis-ci.com/reb3r/ado-api-php-client.svg?branch=main)](https://api.travis-ci.com/reb3r/ado-api-php-client.svg?branch=main)
 
   [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Freb3r%2Fado-api-php-client%2Fmain)](https://dashboard.stryker-mutator.io/reports/github.com/reb3r/ado-api-php-client/main)
 ## Dependencies
