@@ -1,0 +1,18 @@
+{
+    "workItems": [
+      {
+        "rel": null,
+        "source": null,
+        "target": {
+          "id": 50
+        }
+      },
+      {
+        "rel": null,
+        "source": null,
+        "target": {
+          "id": 49
+        }
+      }
+    ]
+  }

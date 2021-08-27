@@ -129,7 +129,7 @@ class AzureDevOpsApiClient
         $headers = ['Content-Type' => 'application/json-patch+json'];
         $response = $this->guzzle->post($url, [
             'auth' => [$this->username, $this->password],
-            'body' => $requestBody,
+            'body' => json_encode($requestBody),
             'headers' => $headers
         ]);
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
@@ -470,7 +470,7 @@ class AzureDevOpsApiClient
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/core/teams/get-all-teams?view=azure-devops-rest-6.0
         $query = '?api-version=6.0-preview.3';
         $requestUrl = '/_apis/teams';
-        $url = $this->baseUrl . $this->organization  . '/' . $requestUrl . $query;
+        $url = $this->baseUrl . $this->organization . $requestUrl . $query;
         $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
             $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
@@ -550,7 +550,7 @@ class AzureDevOpsApiClient
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/core/projects/list?view=azure-devops-rest-6.0
         $query = '?api-version=6.0';
         $requestUrl = '/_apis/projects';
-        $url = $this->baseUrl . $this->organization  . '/' . $requestUrl . $query;
+        $url = $this->baseUrl . $this->organization . $requestUrl . $query;
         $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
             $result = collect(json_decode($response->getBody()->getContents(), true)['value']);

@@ -1,5 +1,3 @@
-[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Freb3r%2Fado-api-php-client%2Fmain)](https://dashboard.stryker-mutator.io/reports/github.com/reb3r/ado-api-php-client/main)
-
 ## Installation
 
 Install this PHP package with composer:
@@ -21,6 +19,7 @@ Other things to include:
 
   [![Build Status](https://travis-ci.com/reb3r/ado-api-php-client.svg?branch=main)](https://travis-ci.com/reb3r/ado-api-php-client)
 
+  [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Freb3r%2Fado-api-php-client%2Fmain)](https://dashboard.stryker-mutator.io/reports/github.com/reb3r/ado-api-php-client/main)
 ## Dependencies
 
 This library depends on some other open source software. These depencies are installed via composer. For detailed information please consult [composer.json](composer.json)
