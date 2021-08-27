@@ -7,7 +7,9 @@ cache:
 php:
 - 8.0
 
-before_install: phpenv config-add build/pcov.ini
+before_install: 
+- pecl install pcov  
+- phpenv config-add build/pcov.ini
 
 install:
 - composer install
