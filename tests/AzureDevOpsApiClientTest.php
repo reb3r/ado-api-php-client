@@ -10,6 +10,7 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Reb3r\ADOAPC\AzureDevOpsApiClient;
+use Reb3r\ADOAPC\Models\Project;
 use Reb3r\ADOAPC\Models\Team;
 use Reb3r\ADOAPC\Models\Workitem;
 
@@ -241,20 +242,6 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->assertCount(3, $queries);
     }
 
-    /*
-    public function testGetQueryResultById(): void
-    {
-        $this->mockHandler->append(new Response(200, [], file_get_contents(__DIR__ . '/fixtures/teams.json')));
-        $this->mockHandler->append(new Response(200, [], file_get_contents(__DIR__ . '/fixtures/queryResultById.json')));
-
-        $queries = $this->apiClient->getQueryResultById('Quality assurance', 'query-id');
-
-        $expectedUri = 'https://dev.azure.com/Aveyara/project/_apis/wit/queries?$depth=1&api-version=6.0';
-        $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
-        $this->assertAuthorizationInRequests();
-        $this->assertCount(3, $queries);
-    }*/
-
     public function testGetWorkitems(): void
     {
         $this->mockHandler->append(new Response(200, [], file_get_contents(__DIR__ . '/fixtures/workitems.json')));
@@ -312,6 +299,9 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
         $this->assertCount(3, $projects);
+        foreach ($projects as $project) {
+            $this->assertTrue($project instanceof Project);
+        }
     }
 
     public function testGetProjectsError(): void
@@ -323,4 +313,96 @@ final class AzureDevOpsApiClientTest extends TestCase
 
         $this->apiClient->getProjects();
     }
+
+    public function testGetWorkItemFromApiUrl(): void
+    {
+        $this->mockHandler->append(new Response(200, [], file_get_contents(__DIR__ . '/fixtures/workitem.json')));
+
+        $this->apiClient->getWorkItemFromApiUrl('http://fake/Aveyara/_apis/wit/fake?api-version=6.0');
+
+        $expectedUri = 'http://fake/Aveyara/_apis/wit/fake?api-version=6.0';
+        $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
+        $this->assertAuthorizationInRequests();
+    }
+
+    public function testGetWorkItemFromApiUrlError(): void
+    {
+        $this->mockHandler->append(new Response(300));
+
+        $this->expectException(\Reb3r\ADOAPC\Exceptions\Exception::class);
+        $this->expectExceptionMessage('Request to AzureDevOps failed: 300');
+
+        $this->apiClient->getWorkItemFromApiUrl('http://fake/Aveyara/_apis/wit/fake?api-version=6.0');
+    }
+
+    public function testAddCommentToWorkitem(): void
+    {
+        $this->mockHandler->append(new Response(200));
+
+        $workitem = new Workitem('wi-id1', '', [], [], '', '', '', '', '', '');
+        $this->apiClient->addCommentToWorkitem($workitem, 'Testcomment');
+
+        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/wi-id1/comments?api-version=6.0-preview.3';
+        $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
+        $this->assertAuthorizationInRequests();
+    }
+
+    public function testAddCommentToWorkitemError(): void
+    {
+        $this->mockHandler->append(new Response(300));
+
+        $this->expectException(\Reb3r\ADOAPC\Exceptions\Exception::class);
+        $this->expectExceptionMessage('Could not update workitem: 300');
+
+        $workitem = new Workitem('wi-id1', '', [], [], '', '', '', '', '', '');
+        $this->apiClient->addCommentToWorkitem($workitem, 'Testcomment');
+    }
+
+    public function testUpdateWorkitemReproStepsAndAttachments(): void
+    {
+        $this->mockHandler->append(new Response(200));
+
+        $workitem = new Workitem('wi-id1', '', [], [], '', '', '', '', '', '');
+        $this->apiClient->updateWorkitemReproStepsAndAttachments($workitem, 'ReproSteps', collect([['azureDevOpsUrl' => 'http://fakeurl']]));
+
+        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/wi-id1?api-version=6.0';
+        $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
+        $this->assertAuthorizationInRequests();
+    }
+
+    public function testUpdateWorkitemReproStepsAndAttachmentsError(): void
+    {
+        $this->mockHandler->append(new Response(300));
+
+        $this->expectException(\Reb3r\ADOAPC\Exceptions\Exception::class);
+        $this->expectExceptionMessage('Could not update workitem: 300');
+
+        $workitem = new Workitem('wi-id1', '', [], [], '', '', '', '', '', '');
+        $this->apiClient->updateWorkitemReproStepsAndAttachments($workitem,  'ReproSteps', collect());
+    }
+
+    /*public function testGetQueryResultById(): void
+    {
+        $this->mockHandler->append(new Response(200, [], file_get_contents(__DIR__ . '/fixtures/teams.json')));
+        $this->mockHandler->append(new Response(200, [], file_get_contents(__DIR__ . '/fixtures/queryResultById.json')));
+
+        $queries = $this->apiClient->getQueryResultById('Quality assurance', 'query-id');
+
+        $expectedUri = 'https://dev.azure.com/Aveyara/project/_apis/wit/queries?$depth=1&api-version=6.0';
+        $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
+        $this->assertAuthorizationInRequests();
+        $this->assertCount(3, $queries);
+    }*/
+
+    /*public function testSearchWorkitems(): void
+    {
+        $this->mockHandler->append(new Response(200, [], file_get_contents(__DIR__ . '/fixtures/workitemsSearch.json')));
+
+        $workitems = $this->apiClient->searchWorkitem('testSearchText');
+
+        $expectedUri = 'https://https://almsearch.dev.azure.com/Aveyara/project/_apis/search/workitemsearchresults?api-version=6.0-preview.1';
+        $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
+        $this->assertAuthorizationInRequests();
+        $this->assertCount(1, $workitems);
+    }*/
 }

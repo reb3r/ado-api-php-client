@@ -14,7 +14,7 @@ This PHP library supports any developer to easily use the Azure Devops API. In t
 
 Other things to include:
 
-  - **Technology stack**: supportet PHP versions (>= 7.3)
+  - **Technology stack**: supportet PHP versions (>= 8.0)
   - **Status**:  Pre-Alpha. For details consult [CHANGELOG](CHANGELOG.md).
 
   [![Build Status](https://api.travis-ci.com/reb3r/ado-api-php-client.svg?branch=main)](https://api.travis-ci.com/reb3r/ado-api-php-client.svg?branch=main)
@@ -53,6 +53,11 @@ vendor/bin/phpunit tests
 ## Known issues
 
 The software is pre-alpha. It is prelimiary created for self-educating purposes. Please acklowedge this if you want to use this library.
+
+Areas with known improvement space:
+- Test quality can be improved. Current focus is on high test coverage and reasonable mutant detection.
+- Type safety can be improved.
+- Better data transfer objects
 
 ## Getting help
 

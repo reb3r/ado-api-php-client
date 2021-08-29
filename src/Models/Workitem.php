@@ -52,17 +52,17 @@ class Workitem
     ) {
     }
 
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return $this->title;
     }
 
-    public function getProjectName()
+    public function getProjectName(): string
     {
         return $this->project['name'];
     }
@@ -75,27 +75,27 @@ class Workitem
         return false;
     }
 
-    public function getState()
+    public function getState(): string
     {
         return $this->state;
     }
 
-    public function getCreatedDate()
+    public function getCreatedDate(): string
     {
         return $this->createddate;
     }
 
-    public function getIterationpath()
+    public function getIterationpath(): string
     {
         return $this->iterationpath;
     }
 
-    public function getWorkitemtype()
+    public function getWorkitemtype(): string
     {
         return $this->workitemtype;
     }
 
-    public function getDescription()
+    public function getDescription(): string
     {
         return $this->description;
     }

@@ -10,6 +10,8 @@ use Illuminate\Support\Collection;
 use Reb3r\ADOAPC\Exceptions\Exception;
 use Reb3r\ADOAPC\Exceptions\WorkItemNotFoundException;
 use Reb3r\ADOAPC\Exceptions\WorkItemNotUniqueException;
+use Reb3r\ADOAPC\Models\AttachmentReference;
+use Reb3r\ADOAPC\Models\Project;
 use Reb3r\ADOAPC\Models\Workitem;
 use Reb3r\ADOAPC\Models\Team;
 use RuntimeException;
@@ -173,7 +175,7 @@ class AzureDevOpsApiClient
     public function updateWorkitemReproStepsAndAttachments(Workitem $workitem, string $reproStepsText, Collection $attachments): void
     {
         $query = '?api-version=6.0';
-        $requestUrl = 'wit/workitems/' . $workitem->id;
+        $requestUrl = 'wit/workitems/' . $workitem->getId();
         $url = $this->projectBaseUrl . $requestUrl . $query;
 
         $requestBody = [
@@ -206,10 +208,10 @@ class AzureDevOpsApiClient
         $headers = ['Content-Type' => 'application/json-patch+json'];
         $response = $this->guzzle->patch($url, [
             'auth' => [$this->username, $this->password],
-            'body' => $requestBody,
+            'body' => json_encode($requestBody),
             'headers' => $headers
         ]);
-        if ($response->getStatusCode() >= 400) {
+        if ($response->getStatusCode() >= 300) {
             throw new Exception('Could not update workitem: ' . $response->getStatusCode());
         }
     }
@@ -227,7 +229,7 @@ class AzureDevOpsApiClient
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/comments/add?view=azure-devops-rest-6.0#commentmention
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/core/teams/get%20all%20teams?view=azure-devops-rest-6.0#webapiteam
         $query = '?api-version=6.0-preview.3';
-        $requestUrl = 'wit/workitems/' . $workitem->id . '/comments';
+        $requestUrl = 'wit/workitems/' . $workitem->getId() . '/comments';
         $url = $this->projectBaseUrl . $requestUrl . $query;
 
         // https://stackoverflow.com/questions/58558388/ping-user-in-azure-devops-comment
@@ -238,10 +240,10 @@ class AzureDevOpsApiClient
 
         $response = $this->guzzle->post($url, [
             'auth' => [$this->username, $this->password],
-            'body' => $requestBody,
+            'body' => json_encode($requestBody),
             'headers' => $headers
         ]);
-        if ($response->getStatusCode() >= 400) {
+        if ($response->getStatusCode() >= 300) {
             throw new Exception('Could not update workitem: ' . $response->getStatusCode());
         }
     }
@@ -252,9 +254,9 @@ class AzureDevOpsApiClient
      *
      * @param string $fileName
      * @param string $content
-     * @return array $response->json()
+     * @return AttachmentReference
      */
-    public function uploadAttachment(string $fileName,  string $content)
+    public function uploadAttachment(string $fileName,  string $content): AttachmentReference
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/attachments/create?view=azure-devops-rest-6.0
         $query = '?fileName=' . $fileName . '&api-version=6.0-preview.3';
@@ -273,7 +275,7 @@ class AzureDevOpsApiClient
             throw new Exception('Could not update workitem: ' . $response->getStatusCode());
         }
 
-        return json_decode($response->getBody()->getContents(), true);
+        return AttachmentReference::fromArray(json_decode($response->getBody()->getContents(), true));
     }
 
     /**
@@ -290,7 +292,7 @@ class AzureDevOpsApiClient
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
             return Workitem::fromArray(json_decode($response->getBody()->getContents(), true));
         } else {
-            throw new Exception('Could not create Bug: ' . $response->getStatusCode());
+            throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
         }
     }
 
@@ -326,17 +328,23 @@ class AzureDevOpsApiClient
             'includeFacets' => true
         ];
 
-        $response = $this->guzzle->post($url, ['auth' => [$this->username, $this->password], 'body' => $requestBody]);
+        $response = $this->guzzle->post(
+            $url,
+            [
+                'auth' => [$this->username, $this->password],
+                'body' => json_encode($requestBody)
+            ]
+        );
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
-            if (json_decode($response->getBody()->getContents(), true)['count'] === 0) {
+            $result = json_decode($response->getBody()->getContents(), true);
+            if ($result['count'] === 0) {
                 throw new WorkItemNotFoundException('Could not find WorkItem for ' . $searchtext);
             }
-            if (json_decode($response->getBody()->getContents(), true)['count'] > 1) {
+            if ($result['count'] > 1) {
                 throw new WorkItemNotUniqueException('More than one WorkItem found for OTRS#' . $searchtext);
             }
-            $result = json_decode($response->getBody()->getContents(), true)['results'][0];
 
-            return Workitem::fromArray($result);
+            return Workitem::fromArray($result['results'][0]);
         }
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
@@ -484,7 +492,7 @@ class AzureDevOpsApiClient
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
 
-    public function getRootQueryFolders($depth = 0): Collection
+    public function getRootQueryFolders(int $depth = 0): Collection
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/queries/list?view=azure-devops-rest-6.0
         $query = '?$depth=' . $depth . '&api-version=6.0';
@@ -553,7 +561,10 @@ class AzureDevOpsApiClient
         $url = $this->baseUrl . $this->organization . $requestUrl . $query;
         $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
-            $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
+            $result = collect();
+            foreach (json_decode($response->getBody()->getContents(), true)['value'] as $row) {
+                $result->push(Project::fromArray($row));
+            }
 
             return $result;
         }
