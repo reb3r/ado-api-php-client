@@ -16,10 +16,14 @@ use Reb3r\ADOAPC\Models\Workitem;
 
 final class AzureDevOpsApiClientTest extends TestCase
 {
-    protected $mockHandler;
-    protected $historyContainer;
+    protected MockHandler $mockHandler;
 
-    protected $apiClient;
+    /**
+     * @var array<array>
+     */
+    protected array $historyContainer;
+
+    protected AzureDevOpsApiClient $apiClient;
 
     public function setUp(): void
     {
@@ -39,7 +43,7 @@ final class AzureDevOpsApiClientTest extends TestCase
 
     private function assertAuthorizationInRequests(string $username = 'username', string $secret = 'secret'): void
     {
-        /** @var array */
+        /** @var array<Object> */
         foreach ($this->historyContainer as $transaction) {
             $expectedValue = 'Basic ' . base64_encode($username . ':' . $secret);
             $this->assertEquals($expectedValue, $transaction['request']->getHeader('Authorization')[0]);

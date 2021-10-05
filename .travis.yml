@@ -20,3 +20,4 @@ before_script:
 script:
 - vendor/bin/phpunit tests
 - ./infection.phar --min-msi=50 --min-covered-msi=70 --threads=4
+- vendor/bin/phpstan analyse -l 5 src tests

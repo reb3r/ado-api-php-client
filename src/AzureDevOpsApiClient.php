@@ -60,7 +60,7 @@ class AzureDevOpsApiClient
      * Creates and stores a new bug in azure DevOps
      * @param string $title
      * @param string $description = '' (ReproSteps)
-     * @param Collection $attachments (can be an empty Collection)
+     * @param Collection<array> $attachments (can be an empty Collection)
      *
      * @return Workitem the created item
      * @throws Exception when Request fails
