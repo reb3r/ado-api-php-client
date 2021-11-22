@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace Reb3r\ADOAPC;
 
+use RuntimeException;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Support\Collection;
-use Reb3r\ADOAPC\Exceptions\Exception;
-use Reb3r\ADOAPC\Exceptions\WorkItemNotFoundException;
-use Reb3r\ADOAPC\Exceptions\WorkItemNotUniqueException;
-use Reb3r\ADOAPC\Models\AttachmentReference;
+use Reb3r\ADOAPC\Models\Team;
 use Reb3r\ADOAPC\Models\Project;
 use Reb3r\ADOAPC\Models\Workitem;
-use Reb3r\ADOAPC\Models\Team;
-use RuntimeException;
+use Illuminate\Support\Collection;
+use Reb3r\ADOAPC\Exceptions\Exception;
+use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Exception\GuzzleException;
+use Reb3r\ADOAPC\Models\AttachmentReference;
+use Reb3r\ADOAPC\Exceptions\WorkItemNotFoundException;
+use Reb3r\ADOAPC\Exceptions\WorkItemNotUniqueException;
 
 class AzureDevOpsApiClient
 {
@@ -56,7 +57,30 @@ class AzureDevOpsApiClient
         $this->guzzle = $client;
     }
 
-    /**
+
+    public function getProjectBaseUrl(): string
+    {
+        return $this->projectBaseUrl;
+    }
+
+    public function post(string $url, string $body): ResponseInterface
+    {
+
+        $headers = ['Content-Type' => 'application/json-patch+json'];
+        $response = $this->guzzle->post($url, [
+            'auth' => [$this->username, $this->password],
+            'body' => $body,
+            'headers' => $headers
+        ]);
+        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+            return $response;
+        }
+        throw new Exception('Could not create Bug: ' . $response->getStatusCode());
+    }
+
+    /** 
+     * @deprecated use WorkItemBuilder
+     * 
      * Creates and stores a new bug in azure DevOps
      * @param string $title
      * @param string $description = '' (ReproSteps)

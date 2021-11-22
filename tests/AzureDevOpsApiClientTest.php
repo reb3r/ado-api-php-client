@@ -13,6 +13,7 @@ use Reb3r\ADOAPC\AzureDevOpsApiClient;
 use Reb3r\ADOAPC\Models\Project;
 use Reb3r\ADOAPC\Models\Team;
 use Reb3r\ADOAPC\Models\Workitem;
+use Reb3r\ADOAPC\Models\WorkItemBuilder;
 
 final class AzureDevOpsApiClientTest extends TestCase
 {
@@ -61,6 +62,20 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->assertAuthorizationInRequests();
     }
 
+    public function testCreateBugWithBuilder(): void
+    {
+        $this->mockHandler->append(new Response(200, [], file_get_contents(__DIR__ . '/fixtures/createWorkitems.json')));
+
+        $workitem = WorkItemBuilder::buildBug($this->apiClient)
+            ->title('Title')
+            ->reproSteps('Description')
+            ->create();
+
+        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/$Bug?api-version=6.1-preview.3';
+        $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
+        $this->assertAuthorizationInRequests();
+    }
+
     public function testCreateBugError(): void
     {
         $this->mockHandler->append(new Response(300));
@@ -75,6 +90,23 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->assertAuthorizationInRequests();
     }
 
+    public function testCreateBugErrorWithBuilder(): void
+    {
+        $this->mockHandler->append(new Response(300));
+
+        $this->expectException(\Reb3r\ADOAPC\Exceptions\Exception::class);
+        $this->expectExceptionMessage('Could not create Bug: 300');
+
+        $workitem = WorkItemBuilder::buildBug($this->apiClient)
+            ->title('Title')
+            ->reproSteps('Description')
+            ->create();
+
+        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/$Bug?api-version=6.1-preview.3';
+        $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
+        $this->assertAuthorizationInRequests();
+    }
+    
     public function testUploadAttachment(): void
     {
         $this->mockHandler->append(new Response(200, [], file_get_contents(__DIR__ . '/fixtures/uploadAttachmentTextFile.json')));
