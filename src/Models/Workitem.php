@@ -11,8 +11,6 @@ class Workitem
     public $htmlLink;
     /** @var string */
     public $apiUrl;
-    /** @var string */
-    public $reprosteps;
 
     /*public function __construct(array $ticketArr)
     {
@@ -48,7 +46,8 @@ class Workitem
         private string $createddate,
         private string $iterationpath,
         private string $workitemtype,
-        private string $description
+        private string $description,
+        private string $reprosteps
     ) {
     }
 
@@ -100,6 +99,11 @@ class Workitem
         return $this->description;
     }
 
+    public function getReproSteps(): string
+    {
+        return $this->reprosteps;
+    }
+
     public function getHtmlLink(AzureDevOpsApiClient $azureApiClient): string
     {
         /**
@@ -126,6 +130,7 @@ class Workitem
             $data['fields']['System.IterationPath'] ?? '',
             $data['fields']['System.WorkItemType'] ?? '',
             $data['fields']['System.Description'] ?? '',
+            $data['fields']['Microsoft.VSTS.TCM.ReproSteps'] ?? '',
         );
     }
 }
