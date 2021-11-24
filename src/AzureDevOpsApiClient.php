@@ -560,7 +560,7 @@ class AzureDevOpsApiClient
         $requestUrl = '/_apis/projects';
         $url = $this->baseUrl . $this->organization . $requestUrl . $query;
         $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
-        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+        if ($response->getStatusCode() === 200) {
             $result = collect();
             foreach (json_decode($response->getBody()->getContents(), true)['value'] as $row) {
                 $result->push(Project::fromArray($row));
