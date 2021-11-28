@@ -45,6 +45,14 @@ class AzureDevOpsApiClient
         $this->guzzle = new Client();
     }
 
+    private function getAuthHeader(): array
+    {
+        if (empty($this->username)) {
+            return ['Authorization' => 'Bearer ', $this->password];
+        }
+        return ['Authorization' => 'Basic ' . base64_encode($this->username . ':' . $this->password)];
+    }
+
     /**
      * Sets an alternative http client for api calls.
      * Also useful for unit tests.
@@ -67,8 +75,8 @@ class AzureDevOpsApiClient
     {
 
         $headers = ['Content-Type' => 'application/json-patch+json'];
+        $headers = array_merge($headers, $this->getAuthHeader());
         $response = $this->guzzle->post($url, [
-            'auth' => [$this->username, $this->password],
             'body' => $body,
             'headers' => $headers
         ]);
@@ -153,8 +161,8 @@ class AzureDevOpsApiClient
             }
         }*/
         $headers = ['Content-Type' => 'application/json-patch+json'];
+        $headers = array_merge($headers, $this->getAuthHeader());
         $response = $this->guzzle->post($url, [
-            'auth' => [$this->username, $this->password],
             'body' => json_encode($requestBody),
             'headers' => $headers
         ]);
@@ -230,8 +238,8 @@ class AzureDevOpsApiClient
         }
 
         $headers = ['Content-Type' => 'application/json-patch+json'];
+        $headers = array_merge($headers, $this->getAuthHeader());
         $response = $this->guzzle->patch($url, [
-            'auth' => [$this->username, $this->password],
             'body' => json_encode($requestBody),
             'headers' => $headers
         ]);
@@ -261,9 +269,9 @@ class AzureDevOpsApiClient
             'text' => $commentText
         ];
         $headers = ['Content-Type' => 'application/json'];
+        $headers = array_merge($headers, $this->getAuthHeader());
 
         $response = $this->guzzle->post($url, [
-            'auth' => [$this->username, $this->password],
             'body' => json_encode($requestBody),
             'headers' => $headers
         ]);
@@ -291,7 +299,7 @@ class AzureDevOpsApiClient
 
         //$response = Http::withBasicAuth($this->username, $this->password)->withBody($content, $contentType)->post($url);
         $response = $this->guzzle->post($url, [
-            'auth' => [$this->username, $this->password],
+            'headers' => $this->getAuthHeader(),
             'body' => $content,
         ]);
 
@@ -311,7 +319,7 @@ class AzureDevOpsApiClient
      */
     public function getWorkItemFromApiUrl(string $apiUrl): Workitem
     {
-        $response = $this->guzzle->get($apiUrl, ['auth' => [$this->username, $this->password]]);
+        $response = $this->guzzle->get($apiUrl, ['headers' => $this->getAuthHeader()]);
 
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
             return Workitem::fromArray(json_decode($response->getBody()->getContents(), true));
@@ -355,7 +363,7 @@ class AzureDevOpsApiClient
         $response = $this->guzzle->post(
             $url,
             [
-                'auth' => [$this->username, $this->password],
+                'headers' => $this->getAuthHeader(),
                 'body' => json_encode($requestBody)
             ]
         );
@@ -392,7 +400,7 @@ class AzureDevOpsApiClient
         $requestUrl = 'wit/workitems';
         $url = $this->projectBaseUrl  . $requestUrl . $query;
 
-        $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
+        $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
 
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
             $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
@@ -413,7 +421,7 @@ class AzureDevOpsApiClient
         $requestUrl = 'work/backlogs';
         $url = 'https://dev.azure.com/'  . $this->organization . '/' . $this->project . '/' . $team . '/_apis/' . $requestUrl . $query;
 
-        $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
+        $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
             $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
 
@@ -429,7 +437,7 @@ class AzureDevOpsApiClient
         $requestUrl = 'work/backlogs/' . $backlogId . '/workitems';
         $url = 'https://dev.azure.com/'  . $this->organization . '/' . $this->project . '/' . $team . '/_apis/' . $requestUrl . $query;
 
-        $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
+        $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
             $result = collect(json_decode($response->getBody()->getContents(), true));
 
@@ -453,7 +461,7 @@ class AzureDevOpsApiClient
         $requestUrl = 'work/teamsettings/iterations';
         $url = $this->baseUrl . $this->organization  . '/' . $this->project . '/' . $teamId . '/_apis/' . $requestUrl . $query;
 
-        $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
+        $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
             if (json_decode($response->getBody()->getContents(), true)['count'] === 0) {
                 throw new Exception('Could not find Iteration for ' .  $this->organization  . '/' . $this->project . '/' . $teamname);
@@ -477,7 +485,7 @@ class AzureDevOpsApiClient
         $requestUrl = 'teams';
         $url = 'https://dev.azure.com/'  . $this->organization .  '/_apis/projects/' . $this->project . '/' . $requestUrl . $query;
 
-        $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
+        $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
             $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
             $retCol = collect();
@@ -503,7 +511,7 @@ class AzureDevOpsApiClient
         $query = '?api-version=6.0-preview.3';
         $requestUrl = '/_apis/teams';
         $url = $this->baseUrl . $this->organization . $requestUrl . $query;
-        $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
+        $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
             $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
             $retCol = collect();
@@ -523,7 +531,7 @@ class AzureDevOpsApiClient
         $requestUrl = '_apis/wit/queries';
         $url = 'https://dev.azure.com/'  . $this->organization .  '/' . $this->project . '/' . $requestUrl . $query;
 
-        $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
+        $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
             $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
 
@@ -561,7 +569,7 @@ class AzureDevOpsApiClient
         $query = '?api-version=6.0';
         $requestUrl = '/_apis/wit/wiql/' . $queryId;
         $url = $this->baseUrl . $this->organization  . '/' . $this->project . '/' . $teamId . $requestUrl . $query;
-        $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
+        $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
         if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
             $result = collect(json_decode($response->getBody()->getContents(), true)['workItems']);
 
@@ -583,7 +591,7 @@ class AzureDevOpsApiClient
         $query = '?api-version=6.0';
         $requestUrl = '/_apis/projects';
         $url = $this->baseUrl . $this->organization . $requestUrl . $query;
-        $response = $this->guzzle->get($url, ['auth' => [$this->username, $this->password]]);
+        $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
         if ($response->getStatusCode() === 200) {
             $result = collect();
             foreach (json_decode($response->getBody()->getContents(), true)['value'] as $row) {
