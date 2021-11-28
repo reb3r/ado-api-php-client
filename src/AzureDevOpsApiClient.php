@@ -48,7 +48,7 @@ class AzureDevOpsApiClient
     private function getAuthHeader(): array
     {
         if (empty($this->username)) {
-            return ['Authorization' => 'Bearer ', $this->password];
+            return ['Authorization' => 'Bearer ' . $this->password];
         }
         return ['Authorization' => 'Basic ' . base64_encode($this->username . ':' . $this->password)];
     }
