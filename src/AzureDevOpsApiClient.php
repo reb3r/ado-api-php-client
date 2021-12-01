@@ -80,7 +80,7 @@ class AzureDevOpsApiClient
             'body' => $body,
             'headers' => $headers
         ]);
-        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+        if ($response->getStatusCode() === 200) {
             return $response;
         }
         throw new Exception('Could not create Bug: ' . $response->getStatusCode());
@@ -166,7 +166,7 @@ class AzureDevOpsApiClient
             'body' => json_encode($requestBody),
             'headers' => $headers
         ]);
-        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+        if ($response->getStatusCode() === 200) {
             return Workitem::fromArray(json_decode($response->getBody()->getContents(), true));
         }
         throw new Exception('Could not create Bug: ' . $response->getStatusCode());
@@ -321,7 +321,7 @@ class AzureDevOpsApiClient
     {
         $response = $this->guzzle->get($apiUrl, ['headers' => $this->getAuthHeader()]);
 
-        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+        if ($response->getStatusCode() === 200) {
             return Workitem::fromArray(json_decode($response->getBody()->getContents(), true));
         } else {
             throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
@@ -367,7 +367,7 @@ class AzureDevOpsApiClient
                 'body' => json_encode($requestBody)
             ]
         );
-        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+        if ($response->getStatusCode() === 200) {
             $result = json_decode($response->getBody()->getContents(), true);
             if ($result['count'] === 0) {
                 throw new WorkItemNotFoundException('Could not find WorkItem for ' . $searchtext);
@@ -402,7 +402,7 @@ class AzureDevOpsApiClient
 
         $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
 
-        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+        if ($response->getStatusCode() === 200) {
             $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
 
             $retCol = collect();
@@ -422,7 +422,7 @@ class AzureDevOpsApiClient
         $url = 'https://dev.azure.com/'  . $this->organization . '/' . $this->project . '/' . $team . '/_apis/' . $requestUrl . $query;
 
         $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
-        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+        if ($response->getStatusCode() === 200) {
             $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
 
             return $result;
@@ -438,7 +438,7 @@ class AzureDevOpsApiClient
         $url = 'https://dev.azure.com/'  . $this->organization . '/' . $this->project . '/' . $team . '/_apis/' . $requestUrl . $query;
 
         $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
-        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+        if ($response->getStatusCode() === 200) {
             $result = collect(json_decode($response->getBody()->getContents(), true));
 
             return $result;
@@ -462,7 +462,7 @@ class AzureDevOpsApiClient
         $url = $this->baseUrl . $this->organization  . '/' . $this->project . '/' . $teamId . '/_apis/' . $requestUrl . $query;
 
         $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
-        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+        if ($response->getStatusCode() === 200) {
             if (json_decode($response->getBody()->getContents(), true)['count'] === 0) {
                 throw new Exception('Could not find Iteration for ' .  $this->organization  . '/' . $this->project . '/' . $teamname);
             }
@@ -486,7 +486,7 @@ class AzureDevOpsApiClient
         $url = 'https://dev.azure.com/'  . $this->organization .  '/_apis/projects/' . $this->project . '/' . $requestUrl . $query;
 
         $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
-        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+        if ($response->getStatusCode() === 200) {
             $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
             $retCol = collect();
             foreach ($result as $row) {
@@ -512,7 +512,7 @@ class AzureDevOpsApiClient
         $requestUrl = '/_apis/teams';
         $url = $this->baseUrl . $this->organization . $requestUrl . $query;
         $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
-        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+        if ($response->getStatusCode() === 200) {
             $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
             $retCol = collect();
             foreach ($result as $row) {
@@ -532,7 +532,7 @@ class AzureDevOpsApiClient
         $url = 'https://dev.azure.com/'  . $this->organization .  '/' . $this->project . '/' . $requestUrl . $query;
 
         $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
-        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+        if ($response->getStatusCode() === 200) {
             $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
 
             return $result;
@@ -570,7 +570,7 @@ class AzureDevOpsApiClient
         $requestUrl = '/_apis/wit/wiql/' . $queryId;
         $url = $this->baseUrl . $this->organization  . '/' . $this->project . '/' . $teamId . $requestUrl . $query;
         $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
-        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+        if ($response->getStatusCode() === 200) {
             $result = collect(json_decode($response->getBody()->getContents(), true)['workItems']);
 
             return $result;
