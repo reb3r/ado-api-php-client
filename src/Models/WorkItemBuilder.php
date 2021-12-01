@@ -141,7 +141,7 @@ class WorkItemBuilder
      */
     public function description(string $description): WorkItemBuilder
     {
-        $this->requestBody['reproSteps'] = [
+        $this->requestBody['description'] = [
             'op' => 'add',
             'path' => '/fields/System.Description',
             'from' => null,
@@ -184,7 +184,7 @@ class WorkItemBuilder
         $requestUrl = 'wit/workitems/$' . $this->type;
         $url = $this->apiClient->getProjectBaseUrl() . $requestUrl . $query;
 
-        $response =  $this->apiClient->post($url, json_encode($this->requestBody));
+        $response =  $this->apiClient->post($url, json_encode(array_values($this->requestBody)));
 
         return Workitem::fromArray(json_decode($response->getBody()->getContents(), true));
     }
