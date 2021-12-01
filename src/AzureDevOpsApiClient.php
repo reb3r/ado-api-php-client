@@ -13,6 +13,7 @@ use Illuminate\Support\Collection;
 use Reb3r\ADOAPC\Exceptions\Exception;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\GuzzleException;
+use Reb3r\ADOAPC\Exceptions\AuthenticationException;
 use Reb3r\ADOAPC\Models\AttachmentReference;
 use Reb3r\ADOAPC\Exceptions\WorkItemNotFoundException;
 use Reb3r\ADOAPC\Exceptions\WorkItemNotUniqueException;
@@ -82,6 +83,9 @@ class AzureDevOpsApiClient
         ]);
         if ($response->getStatusCode() === 200) {
             return $response;
+        }
+        if ($response->getStatusCode() === 203) {
+            throw new AuthenticationException('API-Call could not be authenticated correctly.');
         }
         throw new Exception('Could not create Bug: ' . $response->getStatusCode());
     }
@@ -169,6 +173,9 @@ class AzureDevOpsApiClient
         if ($response->getStatusCode() === 200) {
             return Workitem::fromArray(json_decode($response->getBody()->getContents(), true));
         }
+        if ($response->getStatusCode() === 203) {
+            throw new AuthenticationException('API-Call could not be authenticated correctly.');
+        }
         throw new Exception('Could not create Bug: ' . $response->getStatusCode());
     }
 
@@ -243,6 +250,9 @@ class AzureDevOpsApiClient
             'body' => json_encode($requestBody),
             'headers' => $headers
         ]);
+        if ($response->getStatusCode() === 203) {
+            throw new AuthenticationException('API-Call could not be authenticated correctly.');
+        }
         if ($response->getStatusCode() >= 300) {
             throw new Exception('Could not update workitem: ' . $response->getStatusCode());
         }
@@ -275,6 +285,9 @@ class AzureDevOpsApiClient
             'body' => json_encode($requestBody),
             'headers' => $headers
         ]);
+        if ($response->getStatusCode() === 203) {
+            throw new AuthenticationException('API-Call could not be authenticated correctly.');
+        }
         if ($response->getStatusCode() >= 300) {
             throw new Exception('Could not update workitem: ' . $response->getStatusCode());
         }
@@ -303,6 +316,9 @@ class AzureDevOpsApiClient
             'body' => $content,
         ]);
 
+        if ($response->getStatusCode() === 203) {
+            throw new AuthenticationException('API-Call could not be authenticated correctly.');
+        }
         if ($response->getStatusCode() >= 400) {
             throw new Exception('Could not update workitem: ' . $response->getStatusCode());
         }
@@ -323,6 +339,8 @@ class AzureDevOpsApiClient
 
         if ($response->getStatusCode() === 200) {
             return Workitem::fromArray(json_decode($response->getBody()->getContents(), true));
+        } else if ($response->getStatusCode() === 203) {
+            throw new AuthenticationException('API-Call could not be authenticated correctly.');
         } else {
             throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
         }
@@ -378,6 +396,9 @@ class AzureDevOpsApiClient
 
             return Workitem::fromArray($result['results'][0]);
         }
+        if ($response->getStatusCode() === 203) {
+            throw new AuthenticationException('API-Call could not be authenticated correctly.');
+        }
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
 
@@ -411,6 +432,9 @@ class AzureDevOpsApiClient
             });
             return $retCol;
         }
+        if ($response->getStatusCode() === 203) {
+            throw new AuthenticationException('API-Call could not be authenticated correctly.');
+        }
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
 
@@ -427,6 +451,9 @@ class AzureDevOpsApiClient
 
             return $result;
         }
+        if ($response->getStatusCode() === 203) {
+            throw new AuthenticationException('API-Call could not be authenticated correctly.');
+        }
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
 
@@ -442,6 +469,9 @@ class AzureDevOpsApiClient
             $result = collect(json_decode($response->getBody()->getContents(), true));
 
             return $result;
+        }
+        if ($response->getStatusCode() === 203) {
+            throw new AuthenticationException('API-Call could not be authenticated correctly.');
         }
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
@@ -471,6 +501,9 @@ class AzureDevOpsApiClient
             }
             return json_decode($response->getBody()->getContents(), true)['value'][0]['path'];
         }
+        if ($response->getStatusCode() === 203) {
+            throw new AuthenticationException('API-Call could not be authenticated correctly.');
+        }
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
 
@@ -494,6 +527,9 @@ class AzureDevOpsApiClient
             }
 
             return $retCol;
+        }
+        if ($response->getStatusCode() === 203) {
+            throw new AuthenticationException('API-Call could not be authenticated correctly.');
         }
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
@@ -521,6 +557,9 @@ class AzureDevOpsApiClient
 
             return $retCol;
         }
+        if ($response->getStatusCode() === 203) {
+            throw new AuthenticationException('API-Call could not be authenticated correctly.');
+        }
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
 
@@ -536,6 +575,9 @@ class AzureDevOpsApiClient
             $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
 
             return $result;
+        }
+        if ($response->getStatusCode() === 203) {
+            throw new AuthenticationException('API-Call could not be authenticated correctly.');
         }
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
@@ -575,6 +617,9 @@ class AzureDevOpsApiClient
 
             return $result;
         }
+        if ($response->getStatusCode() === 203) {
+            throw new AuthenticationException('API-Call could not be authenticated correctly.');
+        }
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
 
@@ -599,6 +644,9 @@ class AzureDevOpsApiClient
             }
 
             return $result;
+        }
+        if ($response->getStatusCode() === 203) {
+            throw new AuthenticationException('API-Call could not be authenticated correctly.');
         }
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
