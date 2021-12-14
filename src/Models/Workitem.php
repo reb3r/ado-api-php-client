@@ -3,6 +3,7 @@
 namespace Reb3r\ADOAPC\Models;
 
 use Reb3r\ADOAPC\AzureDevOpsApiClient;
+use Reb3r\ADOAPC\Exceptions\AuthenticationException;
 
 class Workitem
 {
@@ -47,7 +48,8 @@ class Workitem
         private string $iterationpath,
         private string $workitemtype,
         private string $description,
-        private string $reprosteps
+        private string $reprosteps,
+        private AzureDevOpsApiClient $azureApiClient
     ) {
     }
 
@@ -117,7 +119,32 @@ class Workitem
         return $this->htmlLink;
     }
 
-    public static function fromArray(array $data): self
+    /**
+     * Adds a comment to this workitem
+     * @param string $commentText
+     *
+     * @return void
+     * @throws AuthenticationException 
+     * @throws Exception
+     */
+    public function addComment(string $commentText): void
+    {
+        // https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/comments/add?view=azure-devops-rest-6.0#commentmention
+        // https://docs.microsoft.com/en-us/rest/api/azure/devops/core/teams/get%20all%20teams?view=azure-devops-rest-6.0#webapiteam
+        $query = '?api-version=6.0-preview.3';
+        $requestUrl = 'wit/workitems/' . $this->getId() . '/comments';
+        $url = $this->azureApiClient->getProjectBaseUrl() . $requestUrl . $query;
+
+        // https://stackoverflow.com/questions/58558388/ping-user-in-azure-devops-comment
+        $requestBody = [
+            'text' => $commentText
+        ];
+
+        $this->azureApiClient->post($url, json_encode($requestBody));
+
+    }
+
+    public static function fromArray(array $data, AzureDevOpsApiClient $azureApiClient): self
     {
         return new self(
             $data['id'],
@@ -131,6 +158,7 @@ class Workitem
             $data['fields']['System.WorkItemType'] ?? '',
             $data['fields']['System.Description'] ?? '',
             $data['fields']['Microsoft.VSTS.TCM.ReproSteps'] ?? '',
+            $azureApiClient
         );
     }
 }

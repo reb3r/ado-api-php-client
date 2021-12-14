@@ -58,12 +58,12 @@ class WorkItemBuilder
     /**
      * Create the new workitem in the current iterationpath of the given team
      * 
-     * @param string $teamname
+     * @param Team $team
      * @return WorkItemBuilder $this
      */
-    public function inCurrentIterationPath(string $teamname): WorkItemBuilder
+    public function inCurrentIterationPath(Team $team): WorkItemBuilder
     {
-        return $this->inIterationPath($this->apiClient->getCurrentIterationPath($teamname));
+        return $this->inIterationPath($this->apiClient->getCurrentIterationPath($team));
     }
 
     /**
@@ -184,8 +184,8 @@ class WorkItemBuilder
         $requestUrl = 'wit/workitems/$' . $this->type;
         $url = $this->apiClient->getProjectBaseUrl() . $requestUrl . $query;
 
-        $response =  $this->apiClient->post($url, json_encode(array_values($this->requestBody)));
+        $response =  $this->apiClient->patch($url, json_encode(array_values($this->requestBody)));
 
-        return Workitem::fromArray(json_decode($response->getBody()->getContents(), true));
+        return Workitem::fromArray(json_decode($response->getBody()->getContents(), true), $this->apiClient);
     }
 }
