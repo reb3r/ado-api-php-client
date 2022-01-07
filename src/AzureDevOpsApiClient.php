@@ -31,6 +31,8 @@ class AzureDevOpsApiClient
     /** @var string */
     private $project;
     /** @var string */
+    private $organizationBaseUrl;
+    /** @var string */
     private $projectBaseUrl;
     /** @var Client */
     private $guzzle;
@@ -42,7 +44,8 @@ class AzureDevOpsApiClient
         $this->baseUrl = $base_url;
         $this->organization = $organization;
         $this->project = $project;
-        $this->projectBaseUrl = $this->baseUrl . $this->organization . '/' . $this->project . '/_apis/';
+        $this->organizationBaseUrl = $this->baseUrl . $this->organization . '/';
+        $this->projectBaseUrl =   $this->organizationBaseUrl . $this->project . '/_apis/';
         $this->guzzle = new Client();
     }
 
@@ -57,9 +60,9 @@ class AzureDevOpsApiClient
     /**
      * Sets an alternative http client for api calls.
      * Also useful for unit tests.
-     * 
-     * @param Client $client 
-     * @return void 
+     *
+     * @param Client $client
+     * @return void
      */
     public function setHttpClient(Client $client)
     {
@@ -72,6 +75,11 @@ class AzureDevOpsApiClient
         return $this->projectBaseUrl;
     }
 
+    public function getOrganizationBaseUrl(): string
+    {
+        return $this->organizationBaseUrl;
+    }
+
     /**
      * sends a post Request to azure via json post
      * ['Content-Type' => 'application/json']
@@ -79,7 +87,7 @@ class AzureDevOpsApiClient
      * @param string $body
      *
      * @return Workitem
-     * @throws AuthenticationException 
+     * @throws AuthenticationException
      * @throws Exception
      */
     public function post(string $url, string $body): ResponseInterface
@@ -95,7 +103,7 @@ class AzureDevOpsApiClient
      * @param string $body
      *
      * @return Workitem
-     * @throws AuthenticationException 
+     * @throws AuthenticationException
      * @throws Exception
      */
     public function patch(string $url, string $body): ResponseInterface
@@ -121,9 +129,31 @@ class AzureDevOpsApiClient
         throw new Exception('Request failed: ' . $response->getStatusCode());
     }
 
-    /** 
+    /**
+     * Downloads an Attachment from Azure DevOps and returns it
+     * @param string $url Full Url is needed!
+     *
+     * @return \Psr\Http\Message\ResponseInterface
+     *
+     * @throws AuthenticationException
+     * @throws Exception
+     */
+    public function getImageAttachment(string $url): \Psr\Http\Message\ResponseInterface
+    {
+        $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
+
+        if ($response->getStatusCode() === 200) {
+            return $response;
+        } else if ($response->getStatusCode() === 203) {
+            throw new AuthenticationException('API-Call could not be authenticated correctly.');
+        } else {
+            throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
+        }
+    }
+
+    /**
      * @deprecated use WorkItemBuilder
-     * 
+     *
      * Creates and stores a new bug in azure DevOps
      * @param string $title
      * @param string $description = '' (ReproSteps)
@@ -290,7 +320,6 @@ class AzureDevOpsApiClient
     }
 
     /**
-     * @deprecated Use Models\Workitem->addComment() instead
      * Adds a comment to a workitem
      * @param Workitem $workitem
      * @param string $commentText
@@ -443,10 +472,10 @@ class AzureDevOpsApiClient
     public function getWorkitemsById(array $ids): Collection
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/search/work%20item%20search%20results/fetch%20work%20item%20search%20results?view=azure-devops-rest-6.0
-        if(empty($ids) === true){
+        if (empty($ids) === true) {
             return collect();
         }
-        
+
         $idsString = '';
         foreach ($ids as $id) {
             $idsString = $idsString . $id . ',';
@@ -463,6 +492,8 @@ class AzureDevOpsApiClient
             $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
 
             $retCol = collect();
+            // dd($result);
+
             $result->each(function (array $row) use ($retCol) {
                 $retCol->push(Workitem::fromArray($row, $this));
             });
@@ -517,7 +548,7 @@ class AzureDevOpsApiClient
      * Depends on azureDevOpsConfiguration >organization >project and <team
      *
      * @param Team $team
-     * 
+     *
      * @return string
      * @throws Exception when path could not be found
      */
@@ -575,10 +606,10 @@ class AzureDevOpsApiClient
 
     /**
      * Get all the teams visible by api
-     * @return Collection 
-     * @throws GuzzleException 
-     * @throws RuntimeException 
-     * @throws Exception 
+     * @return Collection
+     * @throws GuzzleException
+     * @throws RuntimeException
+     * @throws Exception
      */
     public function getAllTeams(): Collection
     {
@@ -604,7 +635,7 @@ class AzureDevOpsApiClient
 
     /**
      * Get the team by ID of the configured organization and project
-     * @return Team 
+     * @return Team
      * @throws Exception
      * @throws AuthenticationException
      */
@@ -660,13 +691,13 @@ class AzureDevOpsApiClient
 
     /**
      * @see https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/wiql/query%20by%20id?view=azure-devops-rest-6.0
-     * 
-     * @param string $teamname 
+     *
+     * @param string $teamname
      * @param string $queryId
-     * @return Collection 
-     * @throws Exception 
-     * @throws GuzzleException 
-     * @throws RuntimeException 
+     * @return Collection
+     * @throws Exception
+     * @throws GuzzleException
+     * @throws RuntimeException
      */
     public function getQueryResultById(Team $team, string $queryId): Collection
     {
@@ -687,10 +718,10 @@ class AzureDevOpsApiClient
 
     /**
      * Gets the projects
-     * @return Collection 
-     * @throws GuzzleException 
-     * @throws RuntimeException 
-     * @throws Exception 
+     * @return Collection
+     * @throws GuzzleException
+     * @throws RuntimeException
+     * @throws Exception
      */
     public function getProjects()
     {
@@ -715,11 +746,11 @@ class AzureDevOpsApiClient
 
     /**
      * Gets a project by ID
-     * @return Project 
-     * @throws GuzzleException 
-     * @throws RuntimeException 
+     * @return Project
+     * @throws GuzzleException
+     * @throws RuntimeException
      * @throws AuthenticationException
-     * @throws Exception 
+     * @throws Exception
      */
     public function getProject(string $projectId): Project
     {

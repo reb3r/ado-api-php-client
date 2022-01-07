@@ -99,70 +99,119 @@ class Workitem
         return $this->workitemtype;
     }
 
-    public function getDescription(): string
+    public function getDescription(bool $withEmbeddedADOImages = false): string
     {
+        if ($withEmbeddedADOImages === true) {
+            return $this->getImagesFromADOAndConvertToBase64($this->description);
+        }
         return $this->description;
     }
 
-    public function getReproSteps(): string
+    public function getReproSteps(bool $withEmbeddedADOImages = false): string
     {
+        if ($withEmbeddedADOImages === true) {
+            return $this->getImagesFromADOAndConvertToBase64($this->reprosteps);
+        }
         return $this->reprosteps;
     }
 
-    public function getSystemInfo(): string
+    public function getSystemInfo(bool $withEmbeddedADOImages = false): string
     {
+        if ($withEmbeddedADOImages === true) {
+            return $this->getImagesFromADOAndConvertToBase64($this->systemInfo);
+        }
         return $this->systemInfo;
     }
 
-    public function getAcceptanceCriteria(): string
+    public function getAcceptanceCriteria(bool $withEmbeddedADOImages = false): string
     {
+        if ($withEmbeddedADOImages === true) {
+            return $this->getImagesFromADOAndConvertToBase64($this->acceptanceCriteria);
+        }
         return $this->acceptanceCriteria;
+    }
+
+    /**
+     * Checks if in a text there are embedded images that are stored as attachments on Azure DevOps
+     * If there are such images they are downloaded and added to the text in base64
+     * @param string $content
+     * @return string
+     *
+     * @throws AuthenticationException
+     * @throws Exception
+     */
+    private function getImagesFromADOAndConvertToBase64(string $content): string
+    {
+        $azureDevOpsImgUrl = $this->azureApiClient->getOrganizationBaseUrl();
+
+        $exploded = explode('<img src="' . $azureDevOpsImgUrl, $content);
+        foreach ($exploded as $key => $finding) {
+            // First Element of an array has three options:
+            // Needle is part of string - if starts with needle [0] is '' if not [0] is part of string before needle
+            // If Needle is not part of String [0] is full string
+            // so [0 can be skipped]
+            if ($key === 0) {
+                continue;
+            }
+            $imgurlPart2 = strstr($finding, '"', true);
+            $url = $azureDevOpsImgUrl . $imgurlPart2;
+            
+            $response =  $this->azureApiClient->getImageAttachment($url);
+            $imgB64 = base64_encode($response->getBody()->getContents());
+
+            $mimeContentTypeFromHeader = strstr($response->getHeader('Content-Type')[0], ';', true);
+            $mimeContentType =  $mimeContentTypeFromHeader === false ? 'image' : $mimeContentTypeFromHeader;
+
+            $imgTag = '<img src="data:' . $mimeContentType . ';base64,' . $imgB64;
+            $exploded[$key] = substr_replace($finding, $imgTag, 0, strlen($imgurlPart2));
+        }
+        return (implode('', $exploded));
     }
 
     /**
      * Get all the text area fields of the workitem as collection.
      * Key of the Items is the field key from azure devops like System.Description
      * the item consists of an array that has name and conent of the field
-     * 
+     *
      * collect([
      * 'System.Description' =>
-     *  [   
+     *  [
      *      'name' => 'Description',
      *      'content' => '<div>This ist the description</div>'
      *  ]
      * ])
      * Collection can be emtpy!
-     * 
+     *
      * @return Collection
      */
-    public function getFieldsWithTextArea(): Collection
+    public function getFieldsWithTextArea(bool $withEmbeddedADOImages = false): Collection
     {
         $fields = collect();
         if (empty($this->getDescription()) === false) {
             $fieldArray = [];
             $fieldArray['name'] = 'Description';
-            $fieldArray['content'] = $this->getDescription();
+            $fieldArray['content'] = $this->getDescription($withEmbeddedADOImages);
             $fields->put('System.Description', $fieldArray);
         }
 
         if (empty($this->getReproSteps()) === false) {
             $fieldArray = [];
             $fieldArray['name'] = 'Repro Steps';
-            $fieldArray['content'] = $this->getReproSteps();
+            $fieldArray['content'] = $this->getReproSteps($withEmbeddedADOImages);
             $fields->put('Microsoft.VSTS.TCM.ReproSteps', $fieldArray);
         }
 
         if (empty($this->getSystemInfo()) === false) {
             $fieldArray = [];
             $fieldArray['name'] = 'System Info';
-            $fieldArray['content'] = $this->getSystemInfo();
+            $fieldArray['content'] = $this->getSystemInfo($withEmbeddedADOImages);
             $fields->put('Microsoft.VSTS.Common.SystemInfo', $fieldArray);
         }
 
         if (empty($this->getAcceptanceCriteria()) === false) {
             $fieldArray = [];
             $fieldArray['name'] = 'Acceptence Criteria';
-            $fieldArray['content'] = $this->getAcceptanceCriteria();
+            $fieldArray['content'] = $this->getAcceptanceCriteria($withEmbeddedADOImages);
             $fields->put('Microsoft.VSTS.Common.AcceptanceCriteria', $fieldArray);
         }
         return $fields;
