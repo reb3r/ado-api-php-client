@@ -95,7 +95,7 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->mockHandler->append(new Response(300));
 
         $this->expectException(\Reb3r\ADOAPC\Exceptions\Exception::class);
-        $this->expectExceptionMessage('Could not create Bug: 300');
+        $this->expectExceptionMessage('Request failed: 300');
 
         $workitem = WorkItemBuilder::buildBug($this->apiClient)
             ->title('Title')
@@ -177,7 +177,7 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->mockHandler->append(new Response(300, [], file_get_contents(__DIR__ . '/fixtures/teamsettings.json')));
 
         $this->expectException(\Reb3r\ADOAPC\Exceptions\Exception::class);
-        $this->expectExceptionMessage('Request to AzureDevOps failed: 300');
+        $this->expectExceptionMessage('More than one Iteration found for Aveyara/project/1');
 
         $team = new Team('1', 'description', [], '', '', '', '', '');
         $this->apiClient->getCurrentIterationPath($team);
@@ -311,7 +311,7 @@ final class AzureDevOpsApiClientTest extends TestCase
 
         $workitems =$this->apiClient->getBacklogWorkItems($team, 'backlog-id1');
 
-        $expectedUri = 'https://dev.azure.com/Aveyara/project/team/_apis/work/backlogs/backlog-id1/workitems?api-version=6.0-preview.1';
+        $expectedUri = 'https://dev.azure.com/Aveyara/project/1/_apis/work/backlogs/backlog-id1/workitems?api-version=6.0-preview.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
         $this->assertCount(1, $workitems);
