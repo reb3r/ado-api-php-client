@@ -152,6 +152,22 @@ class WorkItemBuilder
     }
 
     /**
+     * Add tags to the workitem. Tags are a ;-seperated string
+     * 
+     * @param string $tags
+     * @return WorkItemBuilder $this
+     */
+    public function tags(string $tags): WorkItemBuilder
+    {
+        $this->requestBody['tags'] = [
+            'op' => 'add',
+            'path' => '/fields/System.Tags',
+            'value' => $tags
+        ];
+        return $this;
+    }
+
+    /**
      * Add attachments to the workitem
      * 
      * @param Collection<array> $attachments (can be an empty Collection)

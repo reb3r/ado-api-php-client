@@ -6,6 +6,7 @@ namespace Reb3r\ADOAPC;
 
 use RuntimeException;
 use GuzzleHttp\Client;
+use Reb3r\ADOAPC\Models\Tag;
 use Reb3r\ADOAPC\Models\Team;
 use Reb3r\ADOAPC\Models\Project;
 use Reb3r\ADOAPC\Models\Workitem;
@@ -13,8 +14,8 @@ use Illuminate\Support\Collection;
 use Reb3r\ADOAPC\Exceptions\Exception;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\GuzzleException;
-use Reb3r\ADOAPC\Exceptions\AuthenticationException;
 use Reb3r\ADOAPC\Models\AttachmentReference;
+use Reb3r\ADOAPC\Exceptions\AuthenticationException;
 use Reb3r\ADOAPC\Exceptions\WorkItemNotFoundException;
 use Reb3r\ADOAPC\Exceptions\WorkItemNotUniqueException;
 
@@ -158,11 +159,12 @@ class AzureDevOpsApiClient
      * @param string $title
      * @param string $description = '' (ReproSteps)
      * @param Collection<array> $attachments (can be an empty Collection)
+     * @param Collection<Tag> $tags
      *
      * @return Workitem the created item
      * @throws Exception when Request fails
      */
-    public function createBug(string $title, string $description, Collection $attachments): Workitem
+    public function createBug(string $title, string $description, Collection $attachments, Collection $tags = new Collection()): Workitem
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/work items/create?view=azure-devops-rest-6.1
         $type = 'Bug';
@@ -197,11 +199,24 @@ class AzureDevOpsApiClient
                         'rel' => 'AttachedFile',
                         'url' => $attachment['azureDevOpsUrl'],
                         'attributes' => [
-                            'comment' => 'Added from OTRS'
+                            'comment' => 'Added from TicketStudio'
                         ]
                     ]
                 ];
             }
+        }
+
+        if ($tags->isNotEmpty()) {
+            $value = '';
+            foreach ($tags as $tag) {
+                $value .= $tag . ';';
+            }
+            $value = mb_substr($value, 0, -1);
+            $requestBody[] = [
+                'op' => 'add',
+                'path' => 'fields/System.Tags',
+                'value' => $value
+            ];
         }
 
         /*if ($this->azureDevOpsConfiguration->path != null) {
