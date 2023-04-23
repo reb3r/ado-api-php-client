@@ -52,6 +52,7 @@ class Workitem
         private string $reprosteps,
         private string $acceptanceCriteria,
         private string $systemInfo,
+        private string $resolution,
         private AzureDevOpsApiClient $azureApiClient
     ) {
     }
@@ -129,6 +130,14 @@ class Workitem
             return $this->getImagesFromADOAndConvertToBase64($this->acceptanceCriteria);
         }
         return $this->acceptanceCriteria;
+    }
+
+    public function getResolution(bool $withEmbeddedADOImages = false): string
+    {
+        if ($withEmbeddedADOImages === true) {
+            return $this->getImagesFromADOAndConvertToBase64($this->resolution);
+        }
+        return $this->resolution;
     }
 
     /**
@@ -214,6 +223,13 @@ class Workitem
             $fieldArray['content'] = $this->getAcceptanceCriteria($withEmbeddedADOImages);
             $fields->put('Microsoft.VSTS.Common.AcceptanceCriteria', $fieldArray);
         }
+
+        if (empty($this->getResolution()) === false) {
+            $fieldArray = [];
+            $fieldArray['name'] = 'Resolution';
+            $fieldArray['content'] = $this->getResolution($withEmbeddedADOImages);
+            $fields->put('Microsoft.VSTS.Common.Resolution', $fieldArray);
+        }
         return $fields;
     }
 
@@ -270,6 +286,7 @@ class Workitem
             $data['fields']['Microsoft.VSTS.TCM.ReproSteps'] ?? '',
             $data['fields']['Microsoft.VSTS.Common.AcceptanceCriteria'] ?? '',
             $data['fields']['Microsoft.VSTS.TCM.SystemInfo'] ?? '',
+            $data['fields']['Microsoft.VSTS.Common.Resolution'] ?? '',
             $azureApiClient
         );
     }

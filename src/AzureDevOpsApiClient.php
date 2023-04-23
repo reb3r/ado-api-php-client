@@ -487,6 +487,7 @@ class AzureDevOpsApiClient
     public function getWorkitemsById(array $ids): Collection
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/search/work%20item%20search%20results/fetch%20work%20item%20search%20results?view=azure-devops-rest-6.0
+        // https://learn.microsoft.com/en-us/rest/api/azure/devops/search/work-item-search-results/fetch-work-item-search-results?view=azure-devops-rest-6.0&tabs=HTTP
         if (empty($ids) === true) {
             return collect();
         }
