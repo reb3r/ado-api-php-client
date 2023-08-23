@@ -784,4 +784,28 @@ class AzureDevOpsApiClient
         }
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
+
+    /**
+     * Returns the list of work item types
+     * @return Collection
+     * @throws GuzzleException
+     * @throws RuntimeException
+     * @throws AuthenticationException
+     * @throws Exception
+     */
+    public function getWorkItemTypes(): Collection
+    {
+        $query = '?api-version=7.1-preview.2';
+        $requestUrl = '/' . $this->project . '/_apis/wit/workitemtypes';
+        $url = $this->baseUrl . $this->organization . $requestUrl . $query;
+        $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
+        if ($response->getStatusCode() === 200) {
+            $result = collect(json_decode($response->getBody()->getContents(), true));
+            return $result;
+        }
+        if ($response->getStatusCode() === 203) {
+            throw new AuthenticationException('API-Call could not be authenticated correctly.');
+        }
+        throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
+    }
 }
