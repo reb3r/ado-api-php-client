@@ -56,6 +56,28 @@ class WorkItemBuilder
     }
 
     /**
+     * Create a new WorkItemBuilderInstance to build a Issue
+     * 
+     * @param AzureDevOpsApiClient $apiClient
+     * @return WorkItemBuilder $this
+     */
+    public static function buildIssue(AzureDevOpsApiClient $apiClient): WorkItemBuilder
+    {
+        return new self($apiClient, 'Issue');
+    }
+
+    /**
+     * Create a new WorkItemBuilderInstance to build a Issue
+     * 
+     * @param AzureDevOpsApiClient $apiClient
+     * @return WorkItemBuilder $this
+     */
+    public static function buildUserStory(AzureDevOpsApiClient $apiClient): WorkItemBuilder
+    {
+        return new self($apiClient, 'User Story');
+    }
+
+    /**
      * Create the new workitem in the current iterationpath of the given team
      * 
      * @param Team $team

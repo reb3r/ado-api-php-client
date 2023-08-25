@@ -800,7 +800,7 @@ class AzureDevOpsApiClient
         $url = $this->baseUrl . $this->organization . $requestUrl . $query;
         $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
         if ($response->getStatusCode() === 200) {
-            $result = collect(json_decode($response->getBody()->getContents(), true));
+            $result = collect(json_decode($response->getBody()->getContents(), true)['value']);
             return $result;
         }
         if ($response->getStatusCode() === 203) {
