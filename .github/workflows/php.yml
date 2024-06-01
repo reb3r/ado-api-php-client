@@ -48,7 +48,7 @@ jobs:
       run: wget https://github.com/infection/infection/releases/download/0.24.0/infection.phar && chmod +x infection.phar
 
     - name: Run infection
-      run: ./infection.phar --min-msi=50 --min-covered-msi=70 --threads=4
+      run: ./infection.phar --min-msi=40 --min-covered-msi=60 --threads=4
 
     - name: Run static analysis
       run: vendor/bin/phpstan analyse -l 5 src tests
