@@ -51,4 +51,4 @@ jobs:
       run: ./infection.phar --min-msi=40 --min-covered-msi=60 --threads=4
 
     - name: Run static analysis
-      run: vendor/bin/phpstan analyse -l 5 src tests
+      run: vendor/bin/phpstan analyse
