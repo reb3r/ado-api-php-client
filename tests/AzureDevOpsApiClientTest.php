@@ -378,7 +378,7 @@ final class AzureDevOpsApiClientTest extends TestCase
     {
         $this->mockHandler->append(new Response(200));
 
-        $workitem = new Workitem('wi-id1', '', [], [], '', '', '', '', '', '', '', '', '', $this->apiClient);
+        $workitem = new Workitem('wi-id1', '', [], [], '', '', '', '', '', '', '', '', '', '', $this->apiClient);
         $this->apiClient->addCommentToWorkitem($workitem, 'Testcomment');
 
         $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/wi-id1/comments?api-version=6.0-preview.3';
@@ -393,7 +393,7 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->expectException(\Reb3r\ADOAPC\Exceptions\Exception::class);
         $this->expectExceptionMessage('Could not update workitem: 300');
 
-        $workitem = new Workitem('wi-id1', '', [], [], '', '', '', '', '', '', '', '', '', $this->apiClient);
+        $workitem = new Workitem('wi-id1', '', [], [], '', '', '', '', '', '', '', '', '', '', $this->apiClient);
         $this->apiClient->addCommentToWorkitem($workitem, 'Testcomment');
     }
 
@@ -401,7 +401,7 @@ final class AzureDevOpsApiClientTest extends TestCase
     {
         $this->mockHandler->append(new Response(200));
 
-        $workitem = new Workitem('wi-id1', '', [], [], '', '', '', '', '', '', '', '', '', $this->apiClient);
+        $workitem = new Workitem('wi-id1', '', [], [], '', '', '', '', '', '', '', '', '', '', $this->apiClient);
         $this->apiClient->updateWorkitemReproStepsAndAttachments($workitem, 'ReproSteps', collect([['azureDevOpsUrl' => 'http://fakeurl']]));
 
         $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/wi-id1?api-version=6.0';
@@ -416,7 +416,7 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->expectException(\Reb3r\ADOAPC\Exceptions\Exception::class);
         $this->expectExceptionMessage('Could not update workitem: 300');
 
-        $workitem = new Workitem('wi-id1', '', [], [], '', '', '', '', '', '', '', '', '', $this->apiClient);
+        $workitem = new Workitem('wi-id1', '', [], [], '', '', '', '', '', '', '', '', '', '', $this->apiClient);
         $this->apiClient->updateWorkitemReproStepsAndAttachments($workitem,  'ReproSteps', collect());
     }
 
