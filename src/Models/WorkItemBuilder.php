@@ -3,7 +3,6 @@
 namespace Reb3r\ADOAPC\Models;
 
 use Reb3r\ADOAPC\Models\Workitem;
-use Illuminate\Support\Collection;
 use Reb3r\ADOAPC\AzureDevOpsApiClient;
 use Reb3r\ADOAPC\Exceptions\Exception;
 
@@ -191,11 +190,11 @@ class WorkItemBuilder
 
     /**
      * Add attachments to the workitem
-     * 
-     * @param Collection<array> $attachments (can be an empty Collection)
+     *
+     * @param array<AttachmentReference> $attachments (can be an empty array)
      * @return WorkItemBuilder $this
      */
-    public function attachments(Collection $attachments): WorkItemBuilder
+    public function attachments(array $attachments): WorkItemBuilder
     {
         foreach ($attachments as $attachment) {
             $this->requestBody[] = [

@@ -55,7 +55,7 @@ final class AzureDevOpsApiClientTest extends TestCase
     {
         $this->mockHandler->append(new Response(200, [], file_get_contents(__DIR__ . '/fixtures/createWorkitems.json')));
 
-        $workitem = $this->apiClient->createBug('Title', 'Description', collect());
+        $workitem = $this->apiClient->createBug('Title', 'Description', []);
 
         $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/$Bug?api-version=6.1-preview.3';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
@@ -83,7 +83,7 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->expectException(\Reb3r\ADOAPC\Exceptions\Exception::class);
         $this->expectExceptionMessage('Could not create Bug: 300');
 
-        $this->apiClient->createBug('Title', 'Description', collect());
+        $this->apiClient->createBug('Title', 'Description', []);
 
         $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/$Bug?api-version=6.1-preview.3';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
@@ -166,9 +166,9 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
         $this->assertCount(2, $teams);
-        $teams->each(function ($team) {
+        foreach ($teams as $team) {
             $this->assertTrue($team instanceof Team);
-        });
+        }
     }*/
 
     public function testGetCurrentIterationPathError(): void
@@ -193,9 +193,9 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
         $this->assertCount(2, $teams);
-        $teams->each(function ($team) {
+        foreach ($teams as $team) {
             $this->assertTrue($team instanceof Team);
-        });
+        }
     }
 
     public function testGetTeamsError(): void
@@ -218,9 +218,9 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
         $this->assertCount(2, $teams);
-        $teams->each(function ($team) {
+        foreach ($teams as $team) {
             $this->assertTrue($team instanceof Team);
-        });
+        }
     }
 
     public function testGetAllTeamsError(): void
@@ -289,9 +289,9 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
         $this->assertCount(3, $workitems);
-        $workitems->each(function ($workitem) {
+        foreach ($workitems as $workitem) {
             $this->assertTrue($workitem instanceof Workitem);
-        });
+        }
     }
 
     public function testGetWorkitemsError(): void
@@ -402,7 +402,7 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->mockHandler->append(new Response(200));
 
         $workitem = new Workitem('wi-id1', '', [], [], '', '', '', '', '', '', '', '', '', '', $this->apiClient);
-        $this->apiClient->updateWorkitemReproStepsAndAttachments($workitem, 'ReproSteps', collect([['azureDevOpsUrl' => 'http://fakeurl']]));
+        $this->apiClient->updateWorkitemReproStepsAndAttachments($workitem, 'ReproSteps', [['azureDevOpsUrl' => 'http://fakeurl']]);
 
         $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/wi-id1?api-version=6.0';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
@@ -417,7 +417,7 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->expectExceptionMessage('Could not update workitem: 300');
 
         $workitem = new Workitem('wi-id1', '', [], [], '', '', '', '', '', '', '', '', '', '', $this->apiClient);
-        $this->apiClient->updateWorkitemReproStepsAndAttachments($workitem,  'ReproSteps', collect());
+        $this->apiClient->updateWorkitemReproStepsAndAttachments($workitem,  'ReproSteps', []);
     }
 
     /*public function testGetQueryResultById(): void

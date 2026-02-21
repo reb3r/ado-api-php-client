@@ -2,7 +2,6 @@
 
 namespace Reb3r\ADOAPC\Models;
 
-use Illuminate\Support\Collection;
 use Reb3r\ADOAPC\AzureDevOpsApiClient;
 use Reb3r\ADOAPC\Exceptions\AuthenticationException;
 
@@ -182,53 +181,53 @@ class Workitem
      * Key of the Items is the field key from azure devops like System.Description
      * the item consists of an array that has name and conent of the field
      *
-     * collect([
+     * [
      * 'System.Description' =>
      *  [
      *      'name' => 'Description',
      *      'content' => '<div>This ist the description</div>'
      *  ]
-     * ])
-     * Collection can be emtpy!
+     * ]
+     * Array can be empty!
      *
-     * @return Collection
+     * @return array
      */
-    public function getFieldsWithTextArea(bool $withEmbeddedADOImages = false): Collection
+    public function getFieldsWithTextArea(bool $withEmbeddedADOImages = false): array
     {
-        $fields = collect();
+        $fields = [];
         if (empty($this->getDescription()) === false) {
             $fieldArray = [];
             $fieldArray['name'] = 'Description';
             $fieldArray['content'] = $this->getDescription($withEmbeddedADOImages);
-            $fields->put('System.Description', $fieldArray);
+            $fields['System.Description'] = $fieldArray;
         }
 
         if (empty($this->getReproSteps()) === false) {
             $fieldArray = [];
             $fieldArray['name'] = 'Repro Steps';
             $fieldArray['content'] = $this->getReproSteps($withEmbeddedADOImages);
-            $fields->put('Microsoft.VSTS.TCM.ReproSteps', $fieldArray);
+            $fields['Microsoft.VSTS.TCM.ReproSteps'] = $fieldArray;
         }
 
         if (empty($this->getSystemInfo()) === false) {
             $fieldArray = [];
             $fieldArray['name'] = 'System Info';
             $fieldArray['content'] = $this->getSystemInfo($withEmbeddedADOImages);
-            $fields->put('Microsoft.VSTS.Common.SystemInfo', $fieldArray);
+            $fields['Microsoft.VSTS.Common.SystemInfo'] = $fieldArray;
         }
 
         if (empty($this->getAcceptanceCriteria()) === false) {
             $fieldArray = [];
             $fieldArray['name'] = 'Acceptence Criteria';
             $fieldArray['content'] = $this->getAcceptanceCriteria($withEmbeddedADOImages);
-            $fields->put('Microsoft.VSTS.Common.AcceptanceCriteria', $fieldArray);
+            $fields['Microsoft.VSTS.Common.AcceptanceCriteria'] = $fieldArray;
         }
 
         if (empty($this->getResolution()) === false) {
             $fieldArray = [];
             $fieldArray['name'] = 'Resolution';
             $fieldArray['content'] = $this->getResolution($withEmbeddedADOImages);
-            $fields->put('Microsoft.VSTS.Common.Resolution', $fieldArray);
+            $fields['Microsoft.VSTS.Common.Resolution'] = $fieldArray;
         }
         return $fields;
     }

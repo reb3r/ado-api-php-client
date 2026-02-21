@@ -22,7 +22,6 @@ composer require reb3r/ado-api-php-client
 
 This library depends on:
 - [Guzzle HTTP Client](https://github.com/guzzle/guzzle) (^7.10)
-- [Illuminate Collections](https://github.com/illuminate/collections) (^12.0)
 
 For detailed information, see [composer.json](composer.json).
 
@@ -60,8 +59,8 @@ $client = new AzureDevOpsApiClient($username, $password, $baseUrl, $organization
 
 ```php
 // Create a bug
-$attachments = collect([]);
-$tags = collect(['bug', 'frontend']);
+$attachments = [];
+$tags = ['bug', 'frontend'];
 $bug = $client->createBug('Bug title', 'Description', $attachments, $tags);
 
 // Search for a work item
