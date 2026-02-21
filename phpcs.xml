@@ -16,7 +16,10 @@
     <file>tests</file>
 
     <!-- Use PSR-12 as base standard -->
-    <rule ref="PSR12"/>
+    <rule ref="PSR12">
+        <!-- Allow longer lines for readability -->
+        <exclude name="Generic.Files.LineLength"/>
+    </rule>
 
     <!-- Enforce strict types declaration -->
     <rule ref="Generic.PHP.RequireStrictTypes"/>
