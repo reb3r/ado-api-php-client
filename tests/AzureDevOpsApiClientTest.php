@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Reb3r\ADOAPC\Tests;
+
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;
@@ -20,7 +22,7 @@ final class AzureDevOpsApiClientTest extends TestCase
     protected MockHandler $mockHandler;
 
     /**
-     * @var array<array>
+     * @var array<int, mixed>
      */
     protected array $historyContainer;
 
@@ -44,7 +46,9 @@ final class AzureDevOpsApiClientTest extends TestCase
 
     private function assertAuthorizationInRequests(string $username = 'username', string $secret = 'secret'): void
     {
-        /** @var array<Object> */
+        /**
+ * @var array<Object>
+*/
         foreach ($this->historyContainer as $transaction) {
             $expectedValue = 'Basic ' . base64_encode($username . ':' . $secret);
             $this->assertEquals($expectedValue, $transaction['request']->getHeader('Authorization')[0]);
@@ -309,7 +313,7 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->mockHandler->append(new Response(200, [], file_get_contents(__DIR__ . '/fixtures/backlogWorkItems.json')));
         $team = new Team('1', 'description', [], '', '', '', '', '');
 
-        $workitems =$this->apiClient->getBacklogWorkItems($team, 'backlog-id1');
+        $workitems = $this->apiClient->getBacklogWorkItems($team, 'backlog-id1');
 
         $expectedUri = 'https://dev.azure.com/Aveyara/project/1/_apis/work/backlogs/backlog-id1/workitems?api-version=6.0-preview.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
@@ -417,7 +421,7 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->expectExceptionMessage('Could not update workitem: 300');
 
         $workitem = new Workitem('wi-id1', '', [], '', '', '', '', '', '', '', '', '', '', $this->apiClient);
-        $this->apiClient->updateWorkitemReproStepsAndAttachments($workitem,  'ReproSteps', []);
+        $this->apiClient->updateWorkitemReproStepsAndAttachments($workitem, 'ReproSteps', []);
     }
 
     /*public function testGetQueryResultById(): void

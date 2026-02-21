@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Reb3r\ADOAPC\Tests;
+
 use PHPUnit\Framework\TestCase;
 use Reb3r\ADOAPC\Models\WorkItemBuilder;
 use Reb3r\ADOAPC\AzureDevOpsApiClient;
@@ -159,17 +161,22 @@ final class WorkItemBuilderTest extends TestCase
     public function testAttachmentsAddsToRequestBody(): void
     {
         $attachments = [
-            ['azureDevOpsUrl' => 'http://attachment1.url'],
-            ['azureDevOpsUrl' => 'http://attachment2.url']
+            \Reb3r\ADOAPC\Models\AttachmentReference::fromArray(['azureDevOpsUrl' => 'http://attachment1.url']),
+            \Reb3r\ADOAPC\Models\AttachmentReference::fromArray(['azureDevOpsUrl' => 'http://attachment2.url'])
         ];
 
         $builder = WorkItemBuilder::buildBug($this->apiClient);
         $builder->attachments($attachments);
 
         // Attachments are added directly to requestBody array, not as keyed item
-        $this->assertCount(2, array_filter($builder->requestBody, fn($item) =>
-            isset($item['path']) && $item['path'] === '/relations/-'
-        ));
+        $this->assertCount(
+            2,
+            array_filter(
+                $builder->requestBody,
+                fn($item) =>
+                isset($item['path']) && $item['path'] === '/relations/-'
+            )
+        );
     }
 
     public function testAttachmentsReturnsBuilderForChaining(): void

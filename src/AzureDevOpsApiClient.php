@@ -21,21 +21,37 @@ use Reb3r\ADOAPC\Repository\WorkitemRepository;
 
 class AzureDevOpsApiClient
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     private $username;
-    /** @var string */
+    /**
+     * @var string
+     */
     private $password;
-    /** @var string */
+    /**
+     * @var string
+     */
     private $baseUrl;
-    /** @var string */
+    /**
+     * @var string
+     */
     private $organization;
-    /** @var string */
+    /**
+     * @var string
+     */
     private $project;
-    /** @var string */
+    /**
+     * @var string
+     */
     private $organizationBaseUrl;
-    /** @var string */
+    /**
+     * @var string
+     */
     private $projectBaseUrl;
-    /** @var Client */
+    /**
+     * @var Client
+     */
     private $guzzle;
     private WorkitemRepository $workitemRepository;
 
@@ -54,7 +70,6 @@ class AzureDevOpsApiClient
             $this->projectBaseUrl,
             $this->organization,
             $this->project,
-            $this->baseUrl,
             $this->getAuthHeader()
         );
     }
@@ -74,7 +89,7 @@ class AzureDevOpsApiClient
      * Sets an alternative http client for api calls.
      * Also useful for unit tests.
      *
-     * @param Client $client
+     * @param  Client $client
      * @return void
      */
     public function setHttpClient(Client $client)
@@ -85,7 +100,6 @@ class AzureDevOpsApiClient
             $this->projectBaseUrl,
             $this->organization,
             $this->project,
-            $this->baseUrl,
             $this->getAuthHeader()
         );
     }
@@ -104,6 +118,7 @@ class AzureDevOpsApiClient
     /**
      * sends a post Request to azure via json post
      * ['Content-Type' => 'application/json']
+     *
      * @param string $url
      * @param string $body
      *
@@ -120,6 +135,7 @@ class AzureDevOpsApiClient
     /**
      * sends a post Request to azure via json patch
      * ['Content-Type' => 'application/json-patch+json']
+     *
      * @param string $url
      * @param string $body
      *
@@ -140,10 +156,13 @@ class AzureDevOpsApiClient
     {
         $headers = array_merge($headers, $this->getAuthHeader());
 
-        $response = $this->guzzle->post($url, [
+        $response = $this->guzzle->post(
+            $url,
+            [
             'body' => $body,
             'headers' => $headers
-        ]);
+            ]
+        );
         if ($response->getStatusCode() === 200) {
             return $response;
         }
@@ -155,6 +174,7 @@ class AzureDevOpsApiClient
 
     /**
      * Downloads an Attachment from Azure DevOps and returns it
+     *
      * @param string $url Full Url is needed!
      *
      * @return \Psr\Http\Message\ResponseInterface
@@ -168,7 +188,7 @@ class AzureDevOpsApiClient
 
         if ($response->getStatusCode() === 200) {
             return $response;
-        } else if ($response->getStatusCode() === 203) {
+        } elseif ($response->getStatusCode() === 203) {
             throw new AuthenticationException('API-Call could not be authenticated correctly.');
         } else {
             throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
@@ -179,10 +199,10 @@ class AzureDevOpsApiClient
      * @deprecated use WorkItemBuilder
      *
      * Creates and stores a new bug in azure DevOps
-     * @param string $title
-     * @param string $description = '' (ReproSteps)
-     * @param array<AttachmentReference> $attachments (can be an empty array)
-     * @param array<Tag> $tags
+     * @param      string                     $title
+     * @param      string                     $description = '' (ReproSteps)
+     * @param      array<AttachmentReference> $attachments (can be an empty array)
+     * @param      array<Tag>                 $tags
      *
      * @return Workitem the created item
      * @throws Exception when Request fails
@@ -194,18 +214,22 @@ class AzureDevOpsApiClient
 
     /**
      * tries to find the azure devops id of the team by throwing a team name against the api
+     *
      * @param string $teamName
      *
-     * @return string $id
-     * @throws Exception when no team or more than one team was found
+     * @return     string $id
+     * @throws     Exception when no team or more than one team was found
      * @deprecated
      */
     public function getTeamIdByName(string $teamName): string
     {
         $teams = $this->getTeams();
-        $team = array_filter($teams, function (Team $team) use ($teamName) {
-            return $team->getName() === $teamName;
-        });
+        $team = array_filter(
+            $teams,
+            function (Team $team) use ($teamName) {
+                return $team->getName() === $teamName;
+            }
+        );
         if (count($team) < 1) {
             throw new Exception('Team not found');
         }
@@ -218,9 +242,10 @@ class AzureDevOpsApiClient
 
     /**
      * append the new reprosteps text to the azure devops workitem
-     * @param Workitem $workitem
-     * @param string $reproStepsText
-     * @param array<AttachmentReference> $attachments (can be an empty array)
+     *
+     * @param  Workitem                   $workitem
+     * @param  string                     $reproStepsText
+     * @param  array<AttachmentReference> $attachments    (can be an empty array)
      * @return void
      * @throws Exception when request fails
      */
@@ -231,8 +256,9 @@ class AzureDevOpsApiClient
 
     /**
      * Adds a comment to a workitem
+     *
      * @param Workitem $workitem
-     * @param string $commentText
+     * @param string   $commentText
      *
      * @return void
      * @throws Exception when request fails
@@ -246,11 +272,11 @@ class AzureDevOpsApiClient
      * Uploads and File to Azure Dev Ops an returns the answer
      * the answer includes the created id and link
      *
-     * @param string $fileName
-     * @param string $content
+     * @param  string $fileName
+     * @param  string $content
      * @return AttachmentReference
      */
-    public function uploadAttachment(string $fileName,  string $content): AttachmentReference
+    public function uploadAttachment(string $fileName, string $content): AttachmentReference
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/attachments/create?view=azure-devops-rest-6.0
         $query = '?fileName=' . $fileName . '&api-version=6.0-preview.3';
@@ -260,10 +286,13 @@ class AzureDevOpsApiClient
         $contentType = 'application/octet-stream';
 
         //$response = Http::withBasicAuth($this->username, $this->password)->withBody($content, $contentType)->post($url);
-        $response = $this->guzzle->post($url, [
+        $response = $this->guzzle->post(
+            $url,
+            [
             'headers' => $this->getAuthHeader(),
             'body' => $content,
-        ]);
+            ]
+        );
 
         if ($response->getStatusCode() === 203) {
             throw new AuthenticationException('API-Call could not be authenticated correctly.');
@@ -277,6 +306,7 @@ class AzureDevOpsApiClient
 
     /**
      * gets the workitem from azure dev ops from an api url
+     *
      * @param string $apiUrl
 
      * @return Workitem
@@ -289,6 +319,7 @@ class AzureDevOpsApiClient
 
     /**
      * gets the workitem from azure dev ops that belogs to the given otrsticket
+     *
      * @param string $searchtext
 
      * @return Workitem
@@ -303,12 +334,13 @@ class AzureDevOpsApiClient
 
     /**
      * gets the workitem from azure dev ops that belogs to the given otrsticket
+     *
      * @throws WorkItemNotFoundException if a workitem with the name can not be found
      * @throws WorkItemNotUniqueException if more than one workitem is found
      * @throws Exception when Request fails
      */
     /**
-     * @param array<int> $ids
+     * @param  array<int> $ids
      * @return array<Workitem>
      */
     public function getWorkitemsById(array $ids): array
@@ -396,6 +428,7 @@ class AzureDevOpsApiClient
 
     /**
      * Get the teams of the configured organization and project
+     *
      * @return array<Team>
      * @throws Exception
      */
@@ -424,6 +457,7 @@ class AzureDevOpsApiClient
 
     /**
      * Get all the teams visible by api
+     *
      * @return array<Team>
      * @throws GuzzleException
      * @throws RuntimeException
@@ -453,6 +487,7 @@ class AzureDevOpsApiClient
 
     /**
      * Get the team by ID of the configured organization and project
+     *
      * @return Team
      * @throws Exception
      * @throws AuthenticationException
@@ -516,8 +551,8 @@ class AzureDevOpsApiClient
     /**
      * @see https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/wiql/query%20by%20id?view=azure-devops-rest-6.0
      *
-     * @param Team $team
-     * @param string $queryId
+     * @param  Team   $team
+     * @param  string $queryId
      * @return array<int, array<string, mixed>>
      * @throws Exception
      * @throws GuzzleException
@@ -542,6 +577,7 @@ class AzureDevOpsApiClient
 
     /**
      * Gets the projects
+     *
      * @return array<Project>
      * @throws GuzzleException
      * @throws RuntimeException
@@ -570,6 +606,7 @@ class AzureDevOpsApiClient
 
     /**
      * Gets a project by ID
+     *
      * @return Project
      * @throws GuzzleException
      * @throws RuntimeException
@@ -595,6 +632,7 @@ class AzureDevOpsApiClient
 
     /**
      * Returns the list of work item types
+     *
      * @return array<int, array<string, mixed>>
      * @throws GuzzleException
      * @throws RuntimeException

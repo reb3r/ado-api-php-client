@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Reb3r\ADOAPC\Tests;
+
 use PHPUnit\Framework\TestCase;
 use Reb3r\ADOAPC\Models\Workitem;
 use Reb3r\ADOAPC\AzureDevOpsApiClient;

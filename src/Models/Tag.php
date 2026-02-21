@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Reb3r\ADOAPC\Models;
 
 /**
  * Docs: https://learn.microsoft.com/en-us/rest/api/azure/devops/wit/tags/list?view=azure-devops-rest-6.0&tabs=HTTP
- * 
+ *
  * @package Reb3r\ADOAPC\Models
  */
 class Tag
@@ -42,5 +44,10 @@ class Tag
             (string) $data['name'],
             (string) $data['url'],
         );
+    }
+
+    public function __toString()
+    {
+        return $this->name;
     }
 }

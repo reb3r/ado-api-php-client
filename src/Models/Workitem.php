@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Reb3r\ADOAPC\Models;
 
 use Reb3r\ADOAPC\AzureDevOpsApiClient;
@@ -108,7 +110,8 @@ class Workitem
     /**
      * Checks if in a text there are embedded images that are stored as attachments on Azure DevOps
      * If there are such images they are downloaded and added to the text in base64
-     * @param string $content
+     *
+     * @param  string $content
      * @return string
      *
      * @throws AuthenticationException
@@ -129,7 +132,7 @@ class Workitem
             }
             $imgurlPart2 = strstr($finding, '"', true);
             $url = $azureDevOpsImgUrl . $imgurlPart2;
-            
+
             $response =  $this->azureApiClient->getImageAttachment($url);
             $imgB64 = base64_encode($response->getBody()->getContents());
 
@@ -194,6 +197,7 @@ class Workitem
 
     /**
      * Adds a comment to this workitem
+     *
      * @param string $commentText
      *
      * @return void
@@ -222,7 +226,7 @@ class Workitem
     public static function fromArray(array $data, AzureDevOpsApiClient $azureApiClient): self
     {
         return new self(
-            $data['id'],
+            (string) $data['id'],
             $data['fields']['System.Title'] ?? '',
             $data['project'] ?? [],
             $data['url'],

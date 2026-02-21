@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Reb3r\ADOAPC\Tests;
+
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -33,7 +35,6 @@ final class WorkitemRepositoryTest extends TestCase
             'https://dev.azure.com/org/project/_apis/',
             'org',
             'project',
-            'https://dev.azure.com/',
             $authHeader
         );
 
@@ -42,7 +43,8 @@ final class WorkitemRepositoryTest extends TestCase
 
     public function testCreateBugSuccessful(): void
     {
-        $responseBody = json_encode([
+        $responseBody = json_encode(
+            [
             'id' => '123',
             'fields' => [
                 'System.Title' => 'Test Bug',
@@ -58,7 +60,8 @@ final class WorkitemRepositoryTest extends TestCase
             ],
             'url' => 'http://test.url',
             '_links' => []
-        ]);
+            ]
+        );
 
         $this->mockHandler->append(new Response(200, [], $responseBody));
 
@@ -70,7 +73,8 @@ final class WorkitemRepositoryTest extends TestCase
 
     public function testCreateBugWithAttachments(): void
     {
-        $responseBody = json_encode([
+        $responseBody = json_encode(
+            [
             'id' => '456',
             'fields' => [
                 'System.Title' => 'Bug with Attachments',
@@ -86,11 +90,12 @@ final class WorkitemRepositoryTest extends TestCase
             ],
             'url' => 'http://test.url',
             '_links' => []
-        ]);
+            ]
+        );
 
         $this->mockHandler->append(new Response(200, [], $responseBody));
 
-        $attachments = [['azureDevOpsUrl' => 'http://attachment.url']];
+        $attachments = [\Reb3r\ADOAPC\Models\AttachmentReference::fromArray(['azureDevOpsUrl' => 'http://attachment.url'])];
         $workitem = $this->repository->createBug('Test Bug', 'Desc', $attachments, [], $this->apiClient);
 
         $this->assertInstanceOf(Workitem::class, $workitem);
@@ -98,7 +103,8 @@ final class WorkitemRepositoryTest extends TestCase
 
     public function testCreateBugWithTags(): void
     {
-        $responseBody = json_encode([
+        $responseBody = json_encode(
+            [
             'id' => '789',
             'fields' => [
                 'System.Title' => 'Bug with Tags',
@@ -114,7 +120,8 @@ final class WorkitemRepositoryTest extends TestCase
             ],
             'url' => 'http://test.url',
             '_links' => []
-        ]);
+            ]
+        );
 
         $this->mockHandler->append(new Response(200, [], $responseBody));
 
@@ -153,7 +160,7 @@ final class WorkitemRepositoryTest extends TestCase
 
         $this->repository->updateWorkitemReproStepsAndAttachments($workitem, 'New steps', []);
 
-        $this->assertTrue(true); // If no exception thrown, test passes
+        $this->expectNotToPerformAssertions();
     }
 
     public function testUpdateWorkitemWithAttachments(): void
@@ -166,7 +173,7 @@ final class WorkitemRepositoryTest extends TestCase
         $attachments = [['azureDevOpsUrl' => 'http://attachment.url']];
         $this->repository->updateWorkitemReproStepsAndAttachments($workitem, 'New steps', $attachments);
 
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function testUpdateWorkitemThrowsAuthenticationExceptionOn203(): void
@@ -203,7 +210,7 @@ final class WorkitemRepositoryTest extends TestCase
 
         $this->repository->addCommentToWorkitem($workitem, 'Test comment');
 
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function testAddCommentThrowsAuthenticationExceptionOn203(): void
@@ -232,7 +239,8 @@ final class WorkitemRepositoryTest extends TestCase
 
     public function testGetWorkItemFromApiUrlSuccessful(): void
     {
-        $responseBody = json_encode([
+        $responseBody = json_encode(
+            [
             'id' => '999',
             'fields' => [
                 'System.Title' => 'Retrieved Bug',
@@ -248,7 +256,8 @@ final class WorkitemRepositoryTest extends TestCase
             ],
             'url' => 'http://test.url',
             '_links' => []
-        ]);
+            ]
+        );
 
         $this->mockHandler->append(new Response(200, [], $responseBody));
 
@@ -279,7 +288,8 @@ final class WorkitemRepositoryTest extends TestCase
 
     public function testSearchWorkitemSuccessful(): void
     {
-        $responseBody = json_encode([
+        $responseBody = json_encode(
+            [
             'count' => 1,
             'results' => [
                 [
@@ -300,7 +310,8 @@ final class WorkitemRepositoryTest extends TestCase
                     '_links' => []
                 ]
             ]
-        ]);
+            ]
+        );
 
         $this->mockHandler->append(new Response(200, [], $responseBody));
 
@@ -353,7 +364,8 @@ final class WorkitemRepositoryTest extends TestCase
 
     public function testGetWorkitemsByIdSuccessful(): void
     {
-        $responseBody = json_encode([
+        $responseBody = json_encode(
+            [
             'value' => [
                 [
                     'id' => '111',
@@ -390,7 +402,8 @@ final class WorkitemRepositoryTest extends TestCase
                     '_links' => []
                 ]
             ]
-        ]);
+            ]
+        );
 
         $this->mockHandler->append(new Response(200, [], $responseBody));
 

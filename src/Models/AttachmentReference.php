@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Reb3r\ADOAPC\Models;
 
 /**
  * Docs: https://docs.microsoft.com/en-us/rest/api/azure/devops/core/projects/list?view=azure-devops-rest-6.0
- * 
+ *
  * @package Reb3r\ADOAPC\Models
  */
 class AttachmentReference

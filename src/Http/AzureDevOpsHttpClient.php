@@ -33,7 +33,7 @@ class AzureDevOpsHttpClient
     }
 
     /**
-     * @param array<string, string> $headers
+     * @param  array<string, string> $headers
      * @throws AuthenticationException
      * @throws Exception
      */
@@ -41,10 +41,13 @@ class AzureDevOpsHttpClient
     {
         $headers = array_merge($headers, $this->getAuthHeader());
 
-        $response = $this->guzzle->get($url, [
+        $response = $this->guzzle->get(
+            $url,
+            [
             'headers' => $headers,
             'http_errors' => false
-        ]);
+            ]
+        );
 
         if ($response->getStatusCode() === 200) {
             return $response;
@@ -56,7 +59,7 @@ class AzureDevOpsHttpClient
     }
 
     /**
-     * @param array<string, string> $headers
+     * @param  array<string, string> $headers
      * @throws AuthenticationException
      * @throws Exception
      */
@@ -64,11 +67,14 @@ class AzureDevOpsHttpClient
     {
         $headers = array_merge($headers, $this->getAuthHeader());
 
-        $response = $this->guzzle->post($url, [
+        $response = $this->guzzle->post(
+            $url,
+            [
             'body' => $body,
             'headers' => $headers,
             'http_errors' => false
-        ]);
+            ]
+        );
 
         if ($response->getStatusCode() === 200) {
             return $response;
@@ -80,7 +86,7 @@ class AzureDevOpsHttpClient
     }
 
     /**
-     * @param array<string, string> $headers
+     * @param  array<string, string> $headers
      * @throws AuthenticationException
      * @throws Exception
      */
@@ -88,11 +94,14 @@ class AzureDevOpsHttpClient
     {
         $headers = array_merge($headers, $this->getAuthHeader());
 
-        $response = $this->guzzle->patch($url, [
+        $response = $this->guzzle->patch(
+            $url,
+            [
             'body' => $body,
             'headers' => $headers,
             'http_errors' => false
-        ]);
+            ]
+        );
 
         if ($response->getStatusCode() === 200) {
             return $response;

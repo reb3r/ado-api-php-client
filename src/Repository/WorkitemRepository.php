@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Reb3r\ADOAPC\AzureDevOpsApiClient;
 use Reb3r\ADOAPC\Models\AttachmentReference;
+use Reb3r\ADOAPC\Models\Tag;
 use Reb3r\ADOAPC\Models\Workitem;
 use Reb3r\ADOAPC\Exceptions\AuthenticationException;
 use Reb3r\ADOAPC\Exceptions\Exception;
@@ -21,8 +22,9 @@ class WorkitemRepository
         private string $projectBaseUrl,
         private string $organization,
         private string $project,
-        private string $baseUrl,
-        /** @var array<string, string> */
+        /**
+         * @var array<string, string>
+         */
         private array $authHeader
     ) {
     }
@@ -31,13 +33,13 @@ class WorkitemRepository
      * @deprecated use WorkItemBuilder
      *
      * Creates and stores a new bug in azure DevOps
-     * @param string $title
-     * @param string $description = '' (ReproSteps)
-     * @param array<AttachmentReference> $attachments (can be an empty array)
-     * @param array<Tag> $tags
+     * @param      string                     $title
+     * @param      string                     $description = '' (ReproSteps)
+     * @param      array<AttachmentReference|array<string, string>> $attachments (can be an empty array)
+     * @param      array<Tag|string>          $tags
      *
      * @return Workitem the created item
-     * @throws Exception when Request fails
+     * @throws Exception|AuthenticationException when Request fails
      */
     public function createBug(
         string $title,
@@ -72,12 +74,16 @@ class WorkitemRepository
 
         if (!empty($attachments)) {
             foreach ($attachments as $attachment) {
+                $url = $attachment instanceof AttachmentReference
+                    ? $attachment->getUrl()
+                    : $attachment['azureDevOpsUrl'];
+
                 $requestBody[] = [
                     'op' => 'add',
                     'path' => '/relations/-',
                     'value' => [
                         'rel' => 'AttachedFile',
-                        'url' => $attachment['azureDevOpsUrl'],
+                        'url' => $url,
                         'attributes' => [
                             'comment' => 'Added from TicketStudio'
                         ]
@@ -103,11 +109,14 @@ class WorkitemRepository
         $headers = array_merge($headers, $this->authHeader);
 
         try {
-            $response = $this->guzzle->post($url, [
+            $response = $this->guzzle->post(
+                $url,
+                [
                 'body' => json_encode($requestBody),
                 'headers' => $headers,
                 'http_errors' => false
-            ]);
+                ]
+            );
         } catch (GuzzleException $e) {
             throw new Exception('Could not create Bug: ' . $e->getMessage());
         }
@@ -123,9 +132,10 @@ class WorkitemRepository
 
     /**
      * append the new reprosteps text to the azure devops workitem
-     * @param Workitem $workitem
-     * @param string $reproStepsText
-     * @param array<AttachmentReference> $attachments (can be an empty array)
+     *
+     * @param  Workitem                   $workitem
+     * @param  string                     $reproStepsText
+     * @param  array<AttachmentReference|array<string, string>> $attachments    (can be an empty array)
      * @return void
      * @throws Exception when request fails
      */
@@ -166,11 +176,14 @@ class WorkitemRepository
         $headers = array_merge($headers, $this->authHeader);
 
         try {
-            $response = $this->guzzle->patch($url, [
+            $response = $this->guzzle->patch(
+                $url,
+                [
                 'body' => json_encode($requestBody),
                 'headers' => $headers,
                 'http_errors' => false
-            ]);
+                ]
+            );
         } catch (GuzzleException $e) {
             throw new Exception('Could not update workitem: ' . $e->getMessage());
         }
@@ -185,8 +198,9 @@ class WorkitemRepository
 
     /**
      * Adds a comment to a workitem
+     *
      * @param Workitem $workitem
-     * @param string $commentText
+     * @param string   $commentText
      *
      * @return void
      * @throws Exception when request fails
@@ -207,11 +221,14 @@ class WorkitemRepository
         $headers = array_merge($headers, $this->authHeader);
 
         try {
-            $response = $this->guzzle->post($url, [
+            $response = $this->guzzle->post(
+                $url,
+                [
                 'body' => json_encode($requestBody),
                 'headers' => $headers,
                 'http_errors' => false
-            ]);
+                ]
+            );
         } catch (GuzzleException $e) {
             throw new Exception('Could not update workitem: ' . $e->getMessage());
         }
@@ -226,6 +243,7 @@ class WorkitemRepository
 
     /**
      * gets the workitem from azure dev ops from an api url
+     *
      * @param string $apiUrl
      *
      * @return Workitem
@@ -234,17 +252,20 @@ class WorkitemRepository
     public function getWorkItemFromApiUrl(string $apiUrl, AzureDevOpsApiClient $apiClient): Workitem
     {
         try {
-            $response = $this->guzzle->get($apiUrl, [
+            $response = $this->guzzle->get(
+                $apiUrl,
+                [
                 'headers' => $this->authHeader,
                 'http_errors' => false
-            ]);
+                ]
+            );
         } catch (GuzzleException $e) {
             throw new Exception('Request to AzureDevOps failed: ' . $e->getMessage());
         }
 
         if ($response->getStatusCode() === 200) {
             return Workitem::fromArray(json_decode($response->getBody()->getContents(), true), $apiClient);
-        } else if ($response->getStatusCode() === 203) {
+        } elseif ($response->getStatusCode() === 203) {
             throw new AuthenticationException('API-Call could not be authenticated correctly.');
         } else {
             throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
@@ -253,6 +274,7 @@ class WorkitemRepository
 
     /**
      * gets the workitem from azure dev ops that belogs to the given otrsticket
+     *
      * @param string $searchtext
      *
      * @return Workitem
@@ -311,12 +333,13 @@ class WorkitemRepository
 
     /**
      * gets the workitem from azure dev ops that belogs to the given otrsticket
+     *
      * @throws WorkItemNotFoundException if a workitem with the name can not be found
      * @throws WorkItemNotUniqueException if more than one workitem is found
      * @throws Exception when Request fails
      */
     /**
-     * @param array<int> $ids
+     * @param  array<int> $ids
      * @return array<Workitem>
      */
     public function getWorkitemsById(array $ids, AzureDevOpsApiClient $apiClient): array
@@ -338,10 +361,13 @@ class WorkitemRepository
         $url = $this->projectBaseUrl  . $requestUrl . $query;
 
         try {
-            $response = $this->guzzle->get($url, [
+            $response = $this->guzzle->get(
+                $url,
+                [
                 'headers' => $this->authHeader,
                 'http_errors' => false
-            ]);
+                ]
+            );
         } catch (GuzzleException $e) {
             throw new Exception('Request to AzureDevOps failed: ' . $e->getMessage());
         }

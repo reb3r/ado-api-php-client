@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Reb3r\ADOAPC\Exceptions;
 
 use Exception;
@@ -7,7 +9,9 @@ use Reb3r\ADOAPC\Models\Workitem;
 
 class WorkItemAlreadyExistsException extends Exception
 {
-    /** @var Workitem */
+    /**
+     * @var Workitem
+     */
     public $workItem;
 
     public function setWorkitem(Workitem $workItem): void
