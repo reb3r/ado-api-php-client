@@ -17,6 +17,7 @@ use Reb3r\ADOAPC\Models\AttachmentReference;
 use Reb3r\ADOAPC\Exceptions\AuthenticationException;
 use Reb3r\ADOAPC\Exceptions\WorkItemNotFoundException;
 use Reb3r\ADOAPC\Exceptions\WorkItemNotUniqueException;
+use Reb3r\ADOAPC\Repository\WorkitemRepository;
 
 class AzureDevOpsApiClient
 {
@@ -36,6 +37,7 @@ class AzureDevOpsApiClient
     private $projectBaseUrl;
     /** @var Client */
     private $guzzle;
+    private WorkitemRepository $workitemRepository;
 
     public function __construct(string $username, string $secret, string $base_url, string $organization, string $project)
     {
@@ -47,6 +49,14 @@ class AzureDevOpsApiClient
         $this->organizationBaseUrl = $this->baseUrl . $this->organization . '/';
         $this->projectBaseUrl =   $this->organizationBaseUrl . $this->project . '/_apis/';
         $this->guzzle = new Client();
+        $this->workitemRepository = new WorkitemRepository(
+            $this->guzzle,
+            $this->projectBaseUrl,
+            $this->organization,
+            $this->project,
+            $this->baseUrl,
+            $this->getAuthHeader()
+        );
     }
 
     /**
@@ -70,6 +80,14 @@ class AzureDevOpsApiClient
     public function setHttpClient(Client $client)
     {
         $this->guzzle = $client;
+        $this->workitemRepository = new WorkitemRepository(
+            $this->guzzle,
+            $this->projectBaseUrl,
+            $this->organization,
+            $this->project,
+            $this->baseUrl,
+            $this->getAuthHeader()
+        );
     }
 
 
@@ -171,93 +189,7 @@ class AzureDevOpsApiClient
      */
     public function createBug(string $title, string $description, array $attachments, array $tags = []): Workitem
     {
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/work items/create?view=azure-devops-rest-6.1
-        $type = 'Bug';
-        $query = '?api-version=6.1-preview.3';
-        $requestUrl = 'wit/workitems/$' . $type;
-        $url = $this->projectBaseUrl . $requestUrl . $query;
-
-        $requestBody = [
-            [
-                'op' => 'add',
-                //path describes the Attribute that is defined by value
-                'path' => '/fields/System.Title',
-                'from' => null,
-                'value' => $title
-            ],
-            [
-                'op' => 'add',
-                //path describes the Attribute that is defined by value
-                'path' => '/fields/Microsoft.VSTS.TCM.ReproSteps',
-                'from' => null,
-                //Text Inputs are enclosed by divs...
-                'value' => '<div>' . $description . '</div>'
-            ]
-        ];
-
-        if (!empty($attachments)) {
-            foreach ($attachments as $attachment) {
-                $requestBody[] = [
-                    'op' => 'add',
-                    'path' => '/relations/-',
-                    'value' => [
-                        'rel' => 'AttachedFile',
-                        'url' => $attachment['azureDevOpsUrl'],
-                        'attributes' => [
-                            'comment' => 'Added from TicketStudio'
-                        ]
-                    ]
-                ];
-            }
-        }
-
-        if (!empty($tags)) {
-            $value = '';
-            foreach ($tags as $tag) {
-                $value .= $tag . ';';
-            }
-            $value = mb_substr($value, 0, -1);
-            $requestBody[] = [
-                'op' => 'add',
-                'path' => 'fields/System.Tags',
-                'value' => $value
-            ];
-        }
-
-        /*if ($this->azureDevOpsConfiguration->path != null) {
-            try {
-                $requestBody[] = [
-                    'op' => 'add',
-                    'path' => '/fields/System.AreaPath',
-                    'value' => $this->azureDevOpsConfiguration->path
-                ];
-            } catch (Exception $e) {
-            }
-        }
-
-        if ($this->azureDevOpsConfiguration->isWorkItemIterationCurrent() === true) {
-            try {
-                $requestBody[] = [
-                    'op' => 'add',
-                    'path' => '/fields/System.IterationPath',
-                    'value' => $this->getCurrentIterationPath()
-                ];
-            } catch (Exception $e) {
-            }
-        }*/
-        $headers = ['Content-Type' => 'application/json-patch+json'];
-        $headers = array_merge($headers, $this->getAuthHeader());
-        $response = $this->guzzle->post($url, [
-            'body' => json_encode($requestBody),
-            'headers' => $headers
-        ]);
-        if ($response->getStatusCode() === 200) {
-            return Workitem::fromArray(json_decode($response->getBody()->getContents(), true), $this);
-        }
-        if ($response->getStatusCode() === 203) {
-            throw new AuthenticationException('API-Call could not be authenticated correctly.');
-        }
-        throw new Exception('Could not create Bug: ' . $response->getStatusCode());
+        return $this->workitemRepository->createBug($title, $description, $attachments, $tags, $this);
     }
 
     /**
@@ -294,49 +226,7 @@ class AzureDevOpsApiClient
      */
     public function updateWorkitemReproStepsAndAttachments(Workitem $workitem, string $reproStepsText, array $attachments): void
     {
-        $query = '?api-version=6.0';
-        $requestUrl = 'wit/workitems/' . $workitem->getId();
-        $url = $this->projectBaseUrl . $requestUrl . $query;
-
-        $requestBody = [
-            [
-                'op' => 'add',
-                //path describes the Attribute that is defined by value
-                'path' => '/fields/Microsoft.VSTS.TCM.ReproSteps',
-                'from' => null,
-                //Text Inputs are enclosed by divs...
-                'value' => '<div>' . $reproStepsText . '</div>'
-            ]
-        ];
-
-        if (!empty($attachments)) {
-            foreach ($attachments as $attachment) {
-                $requestBody[] = [
-                    'op' => 'add',
-                    'path' => '/relations/-',
-                    'value' => [
-                        'rel' => 'AttachedFile',
-                        'url' => $attachment['azureDevOpsUrl'],
-                        'attributes' => [
-                            'comment' => 'Added from OTRS'
-                        ]
-                    ]
-                ];
-            }
-        }
-
-        $headers = ['Content-Type' => 'application/json-patch+json'];
-        $headers = array_merge($headers, $this->getAuthHeader());
-        $response = $this->guzzle->patch($url, [
-            'body' => json_encode($requestBody),
-            'headers' => $headers
-        ]);
-        if ($response->getStatusCode() === 203) {
-            throw new AuthenticationException('API-Call could not be authenticated correctly.');
-        }
-        if ($response->getStatusCode() >= 300) {
-            throw new Exception('Could not update workitem: ' . $response->getStatusCode());
-        }
+        $this->workitemRepository->updateWorkitemReproStepsAndAttachments($workitem, $reproStepsText, $attachments);
     }
 
     /**
@@ -349,29 +239,7 @@ class AzureDevOpsApiClient
      */
     public function addCommentToWorkitem(Workitem $workitem, string $commentText): void
     {
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/comments/add?view=azure-devops-rest-6.0#commentmention
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/core/teams/get%20all%20teams?view=azure-devops-rest-6.0#webapiteam
-        $query = '?api-version=6.0-preview.3';
-        $requestUrl = 'wit/workitems/' . $workitem->getId() . '/comments';
-        $url = $this->projectBaseUrl . $requestUrl . $query;
-
-        // https://stackoverflow.com/questions/58558388/ping-user-in-azure-devops-comment
-        $requestBody = [
-            'text' => $commentText
-        ];
-        $headers = ['Content-Type' => 'application/json'];
-        $headers = array_merge($headers, $this->getAuthHeader());
-
-        $response = $this->guzzle->post($url, [
-            'body' => json_encode($requestBody),
-            'headers' => $headers
-        ]);
-        if ($response->getStatusCode() === 203) {
-            throw new AuthenticationException('API-Call could not be authenticated correctly.');
-        }
-        if ($response->getStatusCode() >= 300) {
-            throw new Exception('Could not update workitem: ' . $response->getStatusCode());
-        }
+        $this->workitemRepository->addCommentToWorkitem($workitem, $commentText);
     }
 
     /**
@@ -416,15 +284,7 @@ class AzureDevOpsApiClient
      */
     public function getWorkItemFromApiUrl(string $apiUrl): Workitem
     {
-        $response = $this->guzzle->get($apiUrl, ['headers' => $this->getAuthHeader()]);
-
-        if ($response->getStatusCode() === 200) {
-            return Workitem::fromArray(json_decode($response->getBody()->getContents(), true), $this);
-        } else if ($response->getStatusCode() === 203) {
-            throw new AuthenticationException('API-Call could not be authenticated correctly.');
-        } else {
-            throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
-        }
+        return $this->workitemRepository->getWorkItemFromApiUrl($apiUrl, $this);
     }
 
     /**
@@ -438,49 +298,7 @@ class AzureDevOpsApiClient
      */
     public function searchWorkitem($searchtext): Workitem
     {
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/search/work%20item%20search%20results/fetch%20work%20item%20search%20results?view=azure-devops-rest-6.0
-
-        $query = '?api-version=6.0-preview.1';
-        $requestUrl = 'search/workitemsearchresults';
-        $url = 'https://almsearch.dev.azure.com/'  . $this->organization . '/' . $this->project . '/_apis/' . $requestUrl . $query;
-        $requestBody = [
-            'searchText' => $searchtext,
-            '$skip' => 0,
-            '$top' => 1,
-            // 'filters' => [
-            //     'System.WorkItemType' => ['Bug'],
-            //     'System.State' => ['New', 'Active']
-            // ],
-            'filters' => null,
-            '$orderBy' => [
-                'field' => 'system.id',
-                'sortOrder' => 'ASC'
-            ],
-            'includeFacets' => true
-        ];
-
-        $response = $this->guzzle->post(
-            $url,
-            [
-                'headers' => $this->getAuthHeader(),
-                'body' => json_encode($requestBody)
-            ]
-        );
-        if ($response->getStatusCode() === 200) {
-            $result = json_decode($response->getBody()->getContents(), true);
-            if ($result['count'] === 0) {
-                throw new WorkItemNotFoundException('Could not find WorkItem for ' . $searchtext);
-            }
-            if ($result['count'] > 1) {
-                throw new WorkItemNotUniqueException('More than one WorkItem found for OTRS#' . $searchtext);
-            }
-
-            return Workitem::fromArray($result['results'][0], $this);
-        }
-        if ($response->getStatusCode() === 203) {
-            throw new AuthenticationException('API-Call could not be authenticated correctly.');
-        }
-        throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
+        return $this->workitemRepository->searchWorkitem($searchtext, $this);
     }
 
     /**
@@ -495,38 +313,7 @@ class AzureDevOpsApiClient
      */
     public function getWorkitemsById(array $ids): array
     {
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/search/work%20item%20search%20results/fetch%20work%20item%20search%20results?view=azure-devops-rest-6.0
-        // https://learn.microsoft.com/en-us/rest/api/azure/devops/search/work-item-search-results/fetch-work-item-search-results?view=azure-devops-rest-6.0&tabs=HTTP
-        if (empty($ids) === true) {
-            return [];
-        }
-
-        $idsString = '';
-        foreach ($ids as $id) {
-            $idsString = $idsString . $id . ',';
-        }
-        $idsString = substr_replace($idsString, "", -1); // remove last comma
-
-        $query = '?api-version=6.0&ids=' . $idsString;
-        $requestUrl = 'wit/workitems';
-        $url = $this->projectBaseUrl  . $requestUrl . $query;
-
-        $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
-
-        if ($response->getStatusCode() === 200) {
-            $result = json_decode($response->getBody()->getContents(), true)['value'];
-
-            $retCol = [];
-
-            foreach ($result as $row) {
-                $retCol[] = Workitem::fromArray($row, $this);
-            }
-            return $retCol;
-        }
-        if ($response->getStatusCode() === 203) {
-            throw new AuthenticationException('API-Call could not be authenticated correctly.');
-        }
-        throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
+        return $this->workitemRepository->getWorkitemsById($ids, $this);
     }
 
     /**
