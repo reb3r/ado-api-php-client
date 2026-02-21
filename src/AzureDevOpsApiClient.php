@@ -696,7 +696,7 @@ class AzureDevOpsApiClient
     {
         $queryFolders = $this->getRootQueryFolders(1);
 
-        $queries = collect();
+        $queries = collect([]);
         foreach ($queryFolders as $queryFolder) {
             if ($queryFolder['hasChildren'] === true) {
                 $queries = $queries->merge($queryFolder['children']);

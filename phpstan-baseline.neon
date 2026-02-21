@@ -1,206 +1,253 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Binary operation \"\\.\" between Reb3r\\\\ADOAPC\\\\Models\\\\Tag and ';' results in an error\\.$#"
+			message: '#^Binary operation "\." between Reb3r\\ADOAPC\\Models\\Tag and '';'' results in an error\.$#'
+			identifier: binaryOp.invalid
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\AzureDevOpsApiClient\\:\\:createBug\\(\\) has parameter \\$attachments with generic class Illuminate\\\\Support\\\\Collection but does not specify its types\\: TKey, TValue$#"
+			message: '#^Method Reb3r\\ADOAPC\\AzureDevOpsApiClient\:\:createBug\(\) has parameter \$attachments with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\AzureDevOpsApiClient\\:\\:createBug\\(\\) has parameter \\$tags with generic class Illuminate\\\\Support\\\\Collection but does not specify its types\\: TKey, TValue$#"
+			message: '#^Method Reb3r\\ADOAPC\\AzureDevOpsApiClient\:\:createBug\(\) has parameter \$tags with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\AzureDevOpsApiClient\\:\\:getAllQueries\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#"
+			message: '#^Method Reb3r\\ADOAPC\\AzureDevOpsApiClient\:\:getAllQueries\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\AzureDevOpsApiClient\\:\\:getAllTeams\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#"
+			message: '#^Method Reb3r\\ADOAPC\\AzureDevOpsApiClient\:\:getAllTeams\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\AzureDevOpsApiClient\\:\\:getAuthHeader\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: '#^Method Reb3r\\ADOAPC\\AzureDevOpsApiClient\:\:getAuthHeader\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\AzureDevOpsApiClient\\:\\:getBacklogWorkItems\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#"
+			message: '#^Method Reb3r\\ADOAPC\\AzureDevOpsApiClient\:\:getBacklogWorkItems\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\AzureDevOpsApiClient\\:\\:getBacklogs\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#"
+			message: '#^Method Reb3r\\ADOAPC\\AzureDevOpsApiClient\:\:getBacklogs\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\AzureDevOpsApiClient\\:\\:getProjects\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#"
+			message: '#^Method Reb3r\\ADOAPC\\AzureDevOpsApiClient\:\:getProjects\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\AzureDevOpsApiClient\\:\\:getQueryResultById\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#"
+			message: '#^Method Reb3r\\ADOAPC\\AzureDevOpsApiClient\:\:getQueryResultById\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\AzureDevOpsApiClient\\:\\:getRootQueryFolders\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#"
+			message: '#^Method Reb3r\\ADOAPC\\AzureDevOpsApiClient\:\:getRootQueryFolders\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\AzureDevOpsApiClient\\:\\:getTeams\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#"
+			message: '#^Method Reb3r\\ADOAPC\\AzureDevOpsApiClient\:\:getTeams\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\AzureDevOpsApiClient\\:\\:getWorkItemTypes\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#"
+			message: '#^Method Reb3r\\ADOAPC\\AzureDevOpsApiClient\:\:getWorkItemTypes\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\AzureDevOpsApiClient\\:\\:getWorkitemsById\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
+			message: '#^Method Reb3r\\ADOAPC\\AzureDevOpsApiClient\:\:getWorkitemsById\(\) has parameter \$ids with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\AzureDevOpsApiClient\\:\\:getWorkitemsById\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#"
+			message: '#^Method Reb3r\\ADOAPC\\AzureDevOpsApiClient\:\:getWorkitemsById\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\AzureDevOpsApiClient\\:\\:sendPost\\(\\) has parameter \\$body with no type specified\\.$#"
+			message: '#^Method Reb3r\\ADOAPC\\AzureDevOpsApiClient\:\:sendPost\(\) has parameter \$body with no type specified\.$#'
+			identifier: missingType.parameter
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\AzureDevOpsApiClient\\:\\:sendPost\\(\\) has parameter \\$headers with no type specified\\.$#"
+			message: '#^Method Reb3r\\ADOAPC\\AzureDevOpsApiClient\:\:sendPost\(\) has parameter \$headers with no type specified\.$#'
+			identifier: missingType.parameter
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\AzureDevOpsApiClient\\:\\:sendPost\\(\\) has parameter \\$url with no type specified\\.$#"
+			message: '#^Method Reb3r\\ADOAPC\\AzureDevOpsApiClient\:\:sendPost\(\) has parameter \$url with no type specified\.$#'
+			identifier: missingType.parameter
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\AzureDevOpsApiClient\\:\\:updateWorkitemReproStepsAndAttachments\\(\\) has parameter \\$attachments with generic class Illuminate\\\\Support\\\\Collection but does not specify its types\\: TKey, TValue$#"
+			message: '#^Method Reb3r\\ADOAPC\\AzureDevOpsApiClient\:\:updateWorkitemReproStepsAndAttachments\(\) has parameter \$attachments with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^PHPDoc tag @param references unknown parameter\\: \\$teamname$#"
+			message: '#^PHPDoc tag @param references unknown parameter\: \$teamname$#'
+			identifier: parameter.notFound
 			count: 1
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^PHPDoc tag @return with type Reb3r\\\\ADOAPC\\\\Models\\\\Workitem is not subtype of native type Psr\\\\Http\\\\Message\\\\ResponseInterface\\.$#"
+			message: '#^PHPDoc tag @return with type Reb3r\\ADOAPC\\Models\\Workitem is not subtype of native type Psr\\Http\\Message\\ResponseInterface\.$#'
+			identifier: return.phpDocType
 			count: 2
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Unable to resolve the template type TKey in call to function collect$#"
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
 			count: 8
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Unable to resolve the template type TValue in call to function collect$#"
+			message: '#^Unable to resolve the template type TMergeValue in call to method Illuminate\\Support\\Collection\<\*NEVER\*,\*NEVER\*\>\:\:merge\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: src/AzureDevOpsApiClient.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
 			count: 8
 			path: src/AzureDevOpsApiClient.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\Models\\\\AttachmentReference\\:\\:fromArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
+			message: '#^Method Reb3r\\ADOAPC\\Models\\AttachmentReference\:\:fromArray\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/AttachmentReference.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\Models\\\\Project\\:\\:fromArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
+			message: '#^Method Reb3r\\ADOAPC\\Models\\Project\:\:fromArray\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/Project.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\Models\\\\Tag\\:\\:fromArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
+			message: '#^Method Reb3r\\ADOAPC\\Models\\Tag\:\:fromArray\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/Tag.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\Models\\\\Team\\:\\:__construct\\(\\) has parameter \\$identity with no value type specified in iterable type array\\.$#"
+			message: '#^Method Reb3r\\ADOAPC\\Models\\Team\:\:__construct\(\) has parameter \$identity with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/Team.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\Models\\\\Team\\:\\:fromArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
+			message: '#^Method Reb3r\\ADOAPC\\Models\\Team\:\:fromArray\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/Team.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\Models\\\\Team\\:\\:getIdentity\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: '#^Method Reb3r\\ADOAPC\\Models\\Team\:\:getIdentity\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/Team.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\Models\\\\WorkItemBuilder\\:\\:attachments\\(\\) has parameter \\$attachments with generic class Illuminate\\\\Support\\\\Collection but does not specify its types\\: TKey, TValue$#"
+			message: '#^Method Reb3r\\ADOAPC\\Models\\WorkItemBuilder\:\:attachments\(\) has parameter \$attachments with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/Models/WorkItemBuilder.php
 
 		-
-			message: "#^Property Reb3r\\\\ADOAPC\\\\Models\\\\WorkItemBuilder\\:\\:\\$requestBody type has no value type specified in iterable type array\\.$#"
+			message: '#^Property Reb3r\\ADOAPC\\Models\\WorkItemBuilder\:\:\$requestBody type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/WorkItemBuilder.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\Models\\\\Workitem\\:\\:__construct\\(\\) has parameter \\$links with no value type specified in iterable type array\\.$#"
+			message: '#^Method Reb3r\\ADOAPC\\Models\\Workitem\:\:__construct\(\) has parameter \$links with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/Workitem.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\Models\\\\Workitem\\:\\:__construct\\(\\) has parameter \\$project with no value type specified in iterable type array\\.$#"
+			message: '#^Method Reb3r\\ADOAPC\\Models\\Workitem\:\:__construct\(\) has parameter \$project with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/Workitem.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\Models\\\\Workitem\\:\\:fromArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
+			message: '#^Method Reb3r\\ADOAPC\\Models\\Workitem\:\:fromArray\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Models/Workitem.php
 
 		-
-			message: "#^Method Reb3r\\\\ADOAPC\\\\Models\\\\Workitem\\:\\:getFieldsWithTextArea\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#"
+			message: '#^Method Reb3r\\ADOAPC\\Models\\Workitem\:\:getFieldsWithTextArea\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/Models/Workitem.php
 
 		-
-			message: "#^PHPDoc tag @throws with type Reb3r\\\\ADOAPC\\\\Exceptions\\\\AuthenticationException\\|Reb3r\\\\ADOAPC\\\\Models\\\\Exception is not subtype of Throwable$#"
+			message: '#^PHPDoc tag @throws with type Reb3r\\ADOAPC\\Exceptions\\AuthenticationException\|Reb3r\\ADOAPC\\Models\\Exception is not subtype of Throwable$#'
+			identifier: throws.notThrowable
 			count: 2
 			path: src/Models/Workitem.php
 
 		-
-			message: "#^Property Reb3r\\\\ADOAPC\\\\Models\\\\Workitem\\:\\:\\$htmlLink \\(string\\) in isset\\(\\) is not nullable\\.$#"
+			message: '#^Property Reb3r\\ADOAPC\\Models\\Workitem\:\:\$htmlLink \(string\) in isset\(\) is not nullable\.$#'
+			identifier: isset.property
 			count: 1
 			path: src/Models/Workitem.php
 
 		-
-			message: "#^Property Reb3r\\\\ADOAPC\\\\Models\\\\Workitem\\:\\:\\$links is never read, only written\\.$#"
+			message: '#^Property Reb3r\\ADOAPC\\Models\\Workitem\:\:\$links is never read, only written\.$#'
+			identifier: property.onlyWritten
 			count: 1
 			path: src/Models/Workitem.php
 
 		-
-			message: "#^Property Reb3r\\\\ADOAPC\\\\Models\\\\Workitem\\:\\:\\$url is never read, only written\\.$#"
+			message: '#^Property Reb3r\\ADOAPC\\Models\\Workitem\:\:\$url is never read, only written\.$#'
+			identifier: property.onlyWritten
 			count: 1
 			path: src/Models/Workitem.php
 
 		-
-			message: "#^Strict comparison using \\=\\=\\= between true and false will always evaluate to false\\.$#"
+			message: '#^Strict comparison using \=\=\= between true and false will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
 			count: 1
 			path: src/Models/Workitem.php
 
 		-
-			message: "#^Property AzureDevOpsApiClientTest\\:\\:\\$historyContainer type has no value type specified in iterable type array\\.$#"
+			message: '#^Property AzureDevOpsApiClientTest\:\:\$historyContainer type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: tests/AzureDevOpsApiClientTest.php
