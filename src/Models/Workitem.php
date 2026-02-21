@@ -7,36 +7,8 @@ use Reb3r\ADOAPC\Exceptions\AuthenticationException;
 
 class Workitem
 {
+    private ?string $htmlLink = null;
 
-    /** @var string */
-    public $htmlLink;
-    /** @var string */
-    public $apiUrl;
-
-    /*public function __construct(array $ticketArr)
-    {
-        // different JSON depending on search result or Create return value
-        if (array_key_exists('id', $ticketArr)) {
-            $this->id = $ticketArr['id'];
-        }
-        if (array_key_exists('project', $ticketArr)) {
-            $this->project = $ticketArr['project']['name'];
-        }
-        if (array_key_exists('_links', $ticketArr)) {
-            $this->htmlLink = $ticketArr['_links']['html']['href'];
-        }
-        if (array_key_exists('url', $ticketArr)) {
-            $this->apiUrl = $ticketArr['url'];
-        }
-        foreach ($ticketArr['fields'] as $key => $value) {
-            // modify Key. Get string after last "."
-            $elements = explode('.', $key);
-            $key = array_pop($elements);
-
-            //Finally set the Attributes
-            $this->{mb_strtolower($key)} = $value;
-        }
-    }*/
     public function __construct(
         private string $id,
         private string $title,
@@ -73,10 +45,7 @@ class Workitem
 
     public function isDone(): bool
     {
-        if ($this->state === 'Done') {
-            return true;
-        }
-        return false;
+        return $this->state === 'Done';
     }
 
     public function getState(): string
@@ -101,42 +70,37 @@ class Workitem
 
     public function getDescription(bool $withEmbeddedADOImages = false): string
     {
-        if ($withEmbeddedADOImages === true) {
-            return $this->getImagesFromADOAndConvertToBase64($this->description);
-        }
-        return $this->description;
+        return $withEmbeddedADOImages
+            ? $this->getImagesFromADOAndConvertToBase64($this->description)
+            : $this->description;
     }
 
     public function getReproSteps(bool $withEmbeddedADOImages = false): string
     {
-        if ($withEmbeddedADOImages === true) {
-            return $this->getImagesFromADOAndConvertToBase64($this->reprosteps);
-        }
-        return $this->reprosteps;
+        return $withEmbeddedADOImages
+            ? $this->getImagesFromADOAndConvertToBase64($this->reprosteps)
+            : $this->reprosteps;
     }
 
     public function getSystemInfo(bool $withEmbeddedADOImages = false): string
     {
-        if ($withEmbeddedADOImages === true) {
-            return $this->getImagesFromADOAndConvertToBase64($this->systemInfo);
-        }
-        return $this->systemInfo;
+        return $withEmbeddedADOImages
+            ? $this->getImagesFromADOAndConvertToBase64($this->systemInfo)
+            : $this->systemInfo;
     }
 
     public function getAcceptanceCriteria(bool $withEmbeddedADOImages = false): string
     {
-        if ($withEmbeddedADOImages === true) {
-            return $this->getImagesFromADOAndConvertToBase64($this->acceptanceCriteria);
-        }
-        return $this->acceptanceCriteria;
+        return $withEmbeddedADOImages
+            ? $this->getImagesFromADOAndConvertToBase64($this->acceptanceCriteria)
+            : $this->acceptanceCriteria;
     }
 
     public function getResolution(bool $withEmbeddedADOImages = false): string
     {
-        if ($withEmbeddedADOImages === true) {
-            return $this->getImagesFromADOAndConvertToBase64($this->resolution);
-        }
-        return $this->resolution;
+        return $withEmbeddedADOImages
+            ? $this->getImagesFromADOAndConvertToBase64($this->resolution)
+            : $this->resolution;
     }
 
     /**
@@ -168,12 +132,12 @@ class Workitem
             $imgB64 = base64_encode($response->getBody()->getContents());
 
             $mimeContentTypeFromHeader = strstr($response->getHeader('Content-Type')[0], ';', true);
-            $mimeContentType =  $mimeContentTypeFromHeader === false ? 'image' : $mimeContentTypeFromHeader;
+            $mimeContentType = $mimeContentTypeFromHeader ?: 'image';
 
             $imgTag = '<img src="data:' . $mimeContentType . ';base64,' . $imgB64;
             $exploded[$key] = substr_replace($finding, $imgTag, 0, strlen($imgurlPart2));
         }
-        return (implode('', $exploded));
+        return implode('', $exploded);
     }
 
     /**
@@ -195,51 +159,32 @@ class Workitem
     public function getFieldsWithTextArea(bool $withEmbeddedADOImages = false): array
     {
         $fields = [];
-        if (empty($this->getDescription()) === false) {
-            $fieldArray = [];
-            $fieldArray['name'] = 'Description';
-            $fieldArray['content'] = $this->getDescription($withEmbeddedADOImages);
-            $fields['System.Description'] = $fieldArray;
+
+        $fieldMapping = [
+            'System.Description' => ['name' => 'Description', 'getter' => 'getDescription'],
+            'Microsoft.VSTS.TCM.ReproSteps' => ['name' => 'Repro Steps', 'getter' => 'getReproSteps'],
+            'Microsoft.VSTS.Common.SystemInfo' => ['name' => 'System Info', 'getter' => 'getSystemInfo'],
+            'Microsoft.VSTS.Common.AcceptanceCriteria' => ['name' => 'Acceptence Criteria', 'getter' => 'getAcceptanceCriteria'],
+            'Microsoft.VSTS.Common.Resolution' => ['name' => 'Resolution', 'getter' => 'getResolution'],
+        ];
+
+        foreach ($fieldMapping as $key => $config) {
+            $content = $this->{$config['getter']}($withEmbeddedADOImages);
+            if (!empty($content)) {
+                $fields[$key] = [
+                    'name' => $config['name'],
+                    'content' => $content
+                ];
+            }
         }
 
-        if (empty($this->getReproSteps()) === false) {
-            $fieldArray = [];
-            $fieldArray['name'] = 'Repro Steps';
-            $fieldArray['content'] = $this->getReproSteps($withEmbeddedADOImages);
-            $fields['Microsoft.VSTS.TCM.ReproSteps'] = $fieldArray;
-        }
-
-        if (empty($this->getSystemInfo()) === false) {
-            $fieldArray = [];
-            $fieldArray['name'] = 'System Info';
-            $fieldArray['content'] = $this->getSystemInfo($withEmbeddedADOImages);
-            $fields['Microsoft.VSTS.Common.SystemInfo'] = $fieldArray;
-        }
-
-        if (empty($this->getAcceptanceCriteria()) === false) {
-            $fieldArray = [];
-            $fieldArray['name'] = 'Acceptence Criteria';
-            $fieldArray['content'] = $this->getAcceptanceCriteria($withEmbeddedADOImages);
-            $fields['Microsoft.VSTS.Common.AcceptanceCriteria'] = $fieldArray;
-        }
-
-        if (empty($this->getResolution()) === false) {
-            $fieldArray = [];
-            $fieldArray['name'] = 'Resolution';
-            $fieldArray['content'] = $this->getResolution($withEmbeddedADOImages);
-            $fields['Microsoft.VSTS.Common.Resolution'] = $fieldArray;
-        }
         return $fields;
     }
 
     public function getHtmlLink(AzureDevOpsApiClient $azureApiClient): string
     {
-        /**
-         * Suppress psalm check. Psalm could not determine, that the assignment in constructor was optional
-         * @psalm-suppress RedundantPropertyInitializationCheck
-         */
-        if (isset($this->htmlLink) === false) {
-            $azureDevOpsWorkitem = $azureApiClient->getWorkItemFromApiUrl($this->apiUrl);
+        if ($this->htmlLink === null) {
+            $azureDevOpsWorkitem = $azureApiClient->getWorkItemFromApiUrl($this->url);
             $this->htmlLink = $azureDevOpsWorkitem->htmlLink;
         }
         return $this->htmlLink;
