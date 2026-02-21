@@ -41,11 +41,14 @@ jobs:
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
 
+    - name: Run code style check
+      run: vendor/bin/phpcs
+
     - name: Run test suite
       run: vendor/bin/phpunit tests
 
     - name: Get infection
-      run: wget https://github.com/infection/infection/releases/download/0.24.0/infection.phar && chmod +x infection.phar
+      run: wget https://github.com/infection/infection/releases/download/0.29.8/infection.phar && chmod +x infection.phar
 
     - name: Run infection
       run: ./infection.phar --min-msi=40 --min-covered-msi=60 --threads=4

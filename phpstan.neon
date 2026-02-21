@@ -6,4 +6,5 @@ parameters:
 	paths:
 		- src
 		- tests
+	phpVersion: 80200
 	reportUnmatchedIgnoredErrors: false

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Reb3r\ADOAPC\Tests;
+
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;
@@ -20,7 +22,7 @@ final class AzureDevOpsApiClientTest extends TestCase
     protected MockHandler $mockHandler;
 
     /**
-     * @var array<array>
+     * @var array<int, mixed>
      */
     protected array $historyContainer;
 
@@ -44,7 +46,9 @@ final class AzureDevOpsApiClientTest extends TestCase
 
     private function assertAuthorizationInRequests(string $username = 'username', string $secret = 'secret'): void
     {
-        /** @var array<Object> */
+        /**
+ * @var array<Object>
+*/
         foreach ($this->historyContainer as $transaction) {
             $expectedValue = 'Basic ' . base64_encode($username . ':' . $secret);
             $this->assertEquals($expectedValue, $transaction['request']->getHeader('Authorization')[0]);
@@ -55,9 +59,9 @@ final class AzureDevOpsApiClientTest extends TestCase
     {
         $this->mockHandler->append(new Response(200, [], file_get_contents(__DIR__ . '/fixtures/createWorkitems.json')));
 
-        $workitem = $this->apiClient->createBug('Title', 'Description', collect());
+        $workitem = $this->apiClient->createBug('Title', 'Description', []);
 
-        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/$Bug?api-version=6.1-preview.3';
+        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/$Bug?api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
     }
@@ -71,7 +75,7 @@ final class AzureDevOpsApiClientTest extends TestCase
             ->reproSteps('Description')
             ->create();
 
-        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/$Bug?api-version=6.1-preview.3';
+        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/$Bug?api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
     }
@@ -83,9 +87,9 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->expectException(\Reb3r\ADOAPC\Exceptions\Exception::class);
         $this->expectExceptionMessage('Could not create Bug: 300');
 
-        $this->apiClient->createBug('Title', 'Description', collect());
+        $this->apiClient->createBug('Title', 'Description', []);
 
-        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/$Bug?api-version=6.1-preview.3';
+        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/$Bug?api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
     }
@@ -102,7 +106,7 @@ final class AzureDevOpsApiClientTest extends TestCase
             ->reproSteps('Description')
             ->create();
 
-        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/$Bug?api-version=6.1-preview.3';
+        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/$Bug?api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
     }
@@ -113,7 +117,7 @@ final class AzureDevOpsApiClientTest extends TestCase
 
         $this->apiClient->uploadAttachment('FileName', 'Hello World');
 
-        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/attachments?fileName=FileName&api-version=6.0-preview.3';
+        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/attachments?fileName=FileName&api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
     }
@@ -126,7 +130,7 @@ final class AzureDevOpsApiClientTest extends TestCase
 
         $this->apiClient->uploadAttachment('FileName', 'Hello World');
 
-        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/attachments?fileName=FileName&api-version=6.0-preview.3';
+        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/attachments?fileName=FileName&api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
     }
@@ -137,7 +141,7 @@ final class AzureDevOpsApiClientTest extends TestCase
 
         $backlogs = $this->apiClient->getBacklogs('team');
 
-        $expectedUri = 'https://dev.azure.com/Aveyara/project/team/_apis/work/backlogs?api-version=6.0-preview.1';
+        $expectedUri = 'https://dev.azure.com/Aveyara/project/team/_apis/work/backlogs?api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
         $this->assertCount(4, $backlogs);
@@ -162,13 +166,13 @@ final class AzureDevOpsApiClientTest extends TestCase
 
         $teams = $this->apiClient->getCurrentIterationPath('Quality assurance');
 
-        $expectedUri = 'http://fake/Aveyara/_apis/projects/project/teams?api-version=6.0';
+        $expectedUri = 'http://fake/Aveyara/_apis/projects/project/teams?api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
         $this->assertCount(2, $teams);
-        $teams->each(function ($team) {
+        foreach ($teams as $team) {
             $this->assertTrue($team instanceof Team);
-        });
+        }
     }*/
 
     public function testGetCurrentIterationPathError(): void
@@ -189,13 +193,13 @@ final class AzureDevOpsApiClientTest extends TestCase
 
         $teams = $this->apiClient->getTeams();
 
-        $expectedUri = 'https://dev.azure.com/Aveyara/_apis/projects/project/teams?api-version=6.0';
+        $expectedUri = 'https://dev.azure.com/Aveyara/_apis/projects/project/teams?api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
         $this->assertCount(2, $teams);
-        $teams->each(function ($team) {
+        foreach ($teams as $team) {
             $this->assertTrue($team instanceof Team);
-        });
+        }
     }
 
     public function testGetTeamsError(): void
@@ -214,13 +218,13 @@ final class AzureDevOpsApiClientTest extends TestCase
 
         $teams = $this->apiClient->getAllTeams();
 
-        $expectedUri = 'http://fake/Aveyara/_apis/teams?api-version=6.0-preview.3';
+        $expectedUri = 'http://fake/Aveyara/_apis/teams?api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
         $this->assertCount(2, $teams);
-        $teams->each(function ($team) {
+        foreach ($teams as $team) {
             $this->assertTrue($team instanceof Team);
-        });
+        }
     }
 
     public function testGetAllTeamsError(): void
@@ -239,7 +243,7 @@ final class AzureDevOpsApiClientTest extends TestCase
 
         $queries = $this->apiClient->getRootQueryFolders(1);
 
-        $expectedUri = 'https://dev.azure.com/Aveyara/project/_apis/wit/queries?$depth=1&api-version=6.0';
+        $expectedUri = 'https://dev.azure.com/Aveyara/project/_apis/wit/queries?$depth=1&api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
         $this->assertCount(2, $queries);
@@ -261,7 +265,7 @@ final class AzureDevOpsApiClientTest extends TestCase
 
         $queries = $this->apiClient->getRootQueryFolders();
 
-        $expectedUri = 'https://dev.azure.com/Aveyara/project/_apis/wit/queries?$depth=0&api-version=6.0';
+        $expectedUri = 'https://dev.azure.com/Aveyara/project/_apis/wit/queries?$depth=0&api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
         $this->assertCount(2, $queries);
@@ -273,7 +277,7 @@ final class AzureDevOpsApiClientTest extends TestCase
 
         $queries = $this->apiClient->getAllQueries();
 
-        $expectedUri = 'https://dev.azure.com/Aveyara/project/_apis/wit/queries?$depth=1&api-version=6.0';
+        $expectedUri = 'https://dev.azure.com/Aveyara/project/_apis/wit/queries?$depth=1&api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
         $this->assertCount(3, $queries);
@@ -285,13 +289,13 @@ final class AzureDevOpsApiClientTest extends TestCase
 
         $workitems = $this->apiClient->getWorkitemsById([297, 299, 300]);
 
-        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems?api-version=6.0&ids=297,299,300';
+        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems?api-version=7.1&ids=297,299,300';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
         $this->assertCount(3, $workitems);
-        $workitems->each(function ($workitem) {
+        foreach ($workitems as $workitem) {
             $this->assertTrue($workitem instanceof Workitem);
-        });
+        }
     }
 
     public function testGetWorkitemsError(): void
@@ -309,9 +313,9 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->mockHandler->append(new Response(200, [], file_get_contents(__DIR__ . '/fixtures/backlogWorkItems.json')));
         $team = new Team('1', 'description', [], '', '', '', '', '');
 
-        $workitems =$this->apiClient->getBacklogWorkItems($team, 'backlog-id1');
+        $workitems = $this->apiClient->getBacklogWorkItems($team, 'backlog-id1');
 
-        $expectedUri = 'https://dev.azure.com/Aveyara/project/1/_apis/work/backlogs/backlog-id1/workitems?api-version=6.0-preview.1';
+        $expectedUri = 'https://dev.azure.com/Aveyara/project/1/_apis/work/backlogs/backlog-id1/workitems?api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
         $this->assertCount(1, $workitems);
@@ -334,7 +338,7 @@ final class AzureDevOpsApiClientTest extends TestCase
 
         $projects = $this->apiClient->getProjects();
 
-        $expectedUri = 'http://fake/Aveyara/_apis/projects?api-version=6.0';
+        $expectedUri = 'http://fake/Aveyara/_apis/projects?api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
         $this->assertCount(3, $projects);
@@ -357,9 +361,9 @@ final class AzureDevOpsApiClientTest extends TestCase
     {
         $this->mockHandler->append(new Response(200, [], file_get_contents(__DIR__ . '/fixtures/workitem.json')));
 
-        $this->apiClient->getWorkItemFromApiUrl('http://fake/Aveyara/_apis/wit/fake?api-version=6.0');
+        $this->apiClient->getWorkItemFromApiUrl('http://fake/Aveyara/_apis/wit/fake?api-version=7.1');
 
-        $expectedUri = 'http://fake/Aveyara/_apis/wit/fake?api-version=6.0';
+        $expectedUri = 'http://fake/Aveyara/_apis/wit/fake?api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
     }
@@ -371,17 +375,17 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->expectException(\Reb3r\ADOAPC\Exceptions\Exception::class);
         $this->expectExceptionMessage('Request to AzureDevOps failed: 300');
 
-        $this->apiClient->getWorkItemFromApiUrl('http://fake/Aveyara/_apis/wit/fake?api-version=6.0');
+        $this->apiClient->getWorkItemFromApiUrl('http://fake/Aveyara/_apis/wit/fake?api-version=7.1');
     }
 
     public function testAddCommentToWorkitem(): void
     {
         $this->mockHandler->append(new Response(200));
 
-        $workitem = new Workitem('wi-id1', '', [], [], '', '', '', '', '', '', '', '', '', '', $this->apiClient);
+        $workitem = new Workitem('wi-id1', '', [], '', '', '', '', '', '', '', '', '', '', $this->apiClient);
         $this->apiClient->addCommentToWorkitem($workitem, 'Testcomment');
 
-        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/wi-id1/comments?api-version=6.0-preview.3';
+        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/wi-id1/comments?api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
     }
@@ -393,7 +397,7 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->expectException(\Reb3r\ADOAPC\Exceptions\Exception::class);
         $this->expectExceptionMessage('Could not update workitem: 300');
 
-        $workitem = new Workitem('wi-id1', '', [], [], '', '', '', '', '', '', '', '', '', '', $this->apiClient);
+        $workitem = new Workitem('wi-id1', '', [], '', '', '', '', '', '', '', '', '', '', $this->apiClient);
         $this->apiClient->addCommentToWorkitem($workitem, 'Testcomment');
     }
 
@@ -401,10 +405,10 @@ final class AzureDevOpsApiClientTest extends TestCase
     {
         $this->mockHandler->append(new Response(200));
 
-        $workitem = new Workitem('wi-id1', '', [], [], '', '', '', '', '', '', '', '', '', '', $this->apiClient);
-        $this->apiClient->updateWorkitemReproStepsAndAttachments($workitem, 'ReproSteps', collect([['azureDevOpsUrl' => 'http://fakeurl']]));
+        $workitem = new Workitem('wi-id1', '', [], '', '', '', '', '', '', '', '', '', '', $this->apiClient);
+        $this->apiClient->updateWorkitemReproStepsAndAttachments($workitem, 'ReproSteps', [['azureDevOpsUrl' => 'http://fakeurl']]);
 
-        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/wi-id1?api-version=6.0';
+        $expectedUri = 'http://fake/Aveyara/project/_apis/wit/workitems/wi-id1?api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
     }
@@ -416,8 +420,8 @@ final class AzureDevOpsApiClientTest extends TestCase
         $this->expectException(\Reb3r\ADOAPC\Exceptions\Exception::class);
         $this->expectExceptionMessage('Could not update workitem: 300');
 
-        $workitem = new Workitem('wi-id1', '', [], [], '', '', '', '', '', '', '', '', '', '', $this->apiClient);
-        $this->apiClient->updateWorkitemReproStepsAndAttachments($workitem,  'ReproSteps', collect());
+        $workitem = new Workitem('wi-id1', '', [], '', '', '', '', '', '', '', '', '', '', $this->apiClient);
+        $this->apiClient->updateWorkitemReproStepsAndAttachments($workitem, 'ReproSteps', []);
     }
 
     /*public function testGetQueryResultById(): void
@@ -427,7 +431,7 @@ final class AzureDevOpsApiClientTest extends TestCase
 
         $queries = $this->apiClient->getQueryResultById('Quality assurance', 'query-id');
 
-        $expectedUri = 'https://dev.azure.com/Aveyara/project/_apis/wit/queries?$depth=1&api-version=6.0';
+        $expectedUri = 'https://dev.azure.com/Aveyara/project/_apis/wit/queries?$depth=1&api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
         $this->assertCount(3, $queries);
@@ -439,7 +443,7 @@ final class AzureDevOpsApiClientTest extends TestCase
 
         $workitems = $this->apiClient->searchWorkitem('testSearchText');
 
-        $expectedUri = 'https://https://almsearch.dev.azure.com/Aveyara/project/_apis/search/workitemsearchresults?api-version=6.0-preview.1';
+        $expectedUri = 'https://https://almsearch.dev.azure.com/Aveyara/project/_apis/search/workitemsearchresults?api-version=7.1';
         $this->assertEquals($expectedUri, $this->historyContainer[0]['request']->getUri()->__toString());
         $this->assertAuthorizationInRequests();
         $this->assertCount(1, $workitems);

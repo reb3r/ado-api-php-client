@@ -1,31 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Reb3r\ADOAPC\Models;
 
+use Reb3r\ADOAPC\Exceptions\AuthenticationException;
 use Reb3r\ADOAPC\Models\Workitem;
-use Illuminate\Support\Collection;
 use Reb3r\ADOAPC\AzureDevOpsApiClient;
 use Reb3r\ADOAPC\Exceptions\Exception;
 
 class WorkItemBuilder
 {
     /**
-     * The request body  
-     * 
-     * @var array */
+     * The request body
+     *
+     * @var array<string|int, array<string, mixed>>
+     */
     public $requestBody = [];
 
-    /**  @var AzureDevOpsApiClient */
+    /**
+     * @var AzureDevOpsApiClient
+     */
     public $apiClient;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     public $type;
 
     /**
      * Create a new WorkItemBuilderInstance
-     * 
+     *
      * @param AzureDevOpsApiClient $apiClient
-     * @param string $type 
+     * @param string               $type
      */
     public function __construct(AzureDevOpsApiClient $apiClient, string $type)
     {
@@ -35,8 +42,8 @@ class WorkItemBuilder
 
     /**
      * Create a new WorkItemBuilderInstance to build a Bug
-     * 
-     * @param AzureDevOpsApiClient $apiClient
+     *
+     * @param  AzureDevOpsApiClient $apiClient
      * @return WorkItemBuilder $this
      */
     public static function buildBug(AzureDevOpsApiClient $apiClient): WorkItemBuilder
@@ -46,8 +53,8 @@ class WorkItemBuilder
 
     /**
      * Create a new WorkItemBuilderInstance to build a Product Backlog Item
-     * 
-     * @param AzureDevOpsApiClient $apiClient
+     *
+     * @param  AzureDevOpsApiClient $apiClient
      * @return WorkItemBuilder $this
      */
     public static function buildPBI(AzureDevOpsApiClient $apiClient): WorkItemBuilder
@@ -57,8 +64,8 @@ class WorkItemBuilder
 
     /**
      * Create a new WorkItemBuilderInstance to build a Issue
-     * 
-     * @param AzureDevOpsApiClient $apiClient
+     *
+     * @param  AzureDevOpsApiClient $apiClient
      * @return WorkItemBuilder $this
      */
     public static function buildIssue(AzureDevOpsApiClient $apiClient): WorkItemBuilder
@@ -68,8 +75,8 @@ class WorkItemBuilder
 
     /**
      * Create a new WorkItemBuilderInstance to build a Issue
-     * 
-     * @param AzureDevOpsApiClient $apiClient
+     *
+     * @param  AzureDevOpsApiClient $apiClient
      * @return WorkItemBuilder $this
      */
     public static function buildUserStory(AzureDevOpsApiClient $apiClient): WorkItemBuilder
@@ -79,8 +86,8 @@ class WorkItemBuilder
 
     /**
      * Create the new workitem in the current iterationpath of the given team
-     * 
-     * @param Team $team
+     *
+     * @param  Team $team
      * @return WorkItemBuilder $this
      */
     public function inCurrentIterationPath(Team $team): WorkItemBuilder
@@ -90,8 +97,8 @@ class WorkItemBuilder
 
     /**
      * Create the new workitem in the given iterationpath
-     * 
-     * @param string $iterationPath
+     *
+     * @param  string $iterationPath
      * @return WorkItemBuilder $this
      */
     public function inIterationPath(string $iterationPath): WorkItemBuilder
@@ -106,8 +113,8 @@ class WorkItemBuilder
 
     /**
      * Create the new workitem in the given area path
-     * 
-     * @param string $areaPath
+     *
+     * @param  string $areaPath
      * @return WorkItemBuilder $this
      */
     public function areaPath(string $areaPath): WorkItemBuilder
@@ -122,8 +129,8 @@ class WorkItemBuilder
 
     /**
      * Add a title to the workitem
-     * 
-     * @param string $title
+     *
+     * @param  string $title
      * @return WorkItemBuilder $this
      */
     public function title(string $title): WorkItemBuilder
@@ -139,8 +146,8 @@ class WorkItemBuilder
 
     /**
      * Add reproSteps to the workitem
-     * 
-     * @param string $reproSteps
+     *
+     * @param  string $reproSteps
      * @return WorkItemBuilder $this
      */
     public function reproSteps(string $reproSteps): WorkItemBuilder
@@ -157,8 +164,8 @@ class WorkItemBuilder
 
     /**
      * Add a description to the workitem
-     * 
-     * @param string $description
+     *
+     * @param  string $description
      * @return WorkItemBuilder $this
      */
     public function description(string $description): WorkItemBuilder
@@ -175,8 +182,8 @@ class WorkItemBuilder
 
     /**
      * Add tags to the workitem. Tags are a ;-seperated string
-     * 
-     * @param string $tags
+     *
+     * @param  string $tags
      * @return WorkItemBuilder $this
      */
     public function tags(string $tags): WorkItemBuilder
@@ -191,19 +198,23 @@ class WorkItemBuilder
 
     /**
      * Add attachments to the workitem
-     * 
-     * @param Collection<array> $attachments (can be an empty Collection)
+     *
+     * @param  array<AttachmentReference|array<string, string>> $attachments (can be an empty array)
      * @return WorkItemBuilder $this
      */
-    public function attachments(Collection $attachments): WorkItemBuilder
+    public function attachments(array $attachments): WorkItemBuilder
     {
         foreach ($attachments as $attachment) {
+            $url = $attachment instanceof AttachmentReference
+                ? $attachment->getUrl()
+                : $attachment['azureDevOpsUrl'];
+
             $this->requestBody[] = [
                 'op' => 'add',
                 'path' => '/relations/-',
                 'value' => [
                     'rel' => 'AttachedFile',
-                    'url' => $attachment['azureDevOpsUrl']
+                    'url' => $url
                 ]
             ];
         }
@@ -214,11 +225,11 @@ class WorkItemBuilder
      * Creates and stores a new workitem in azure DevOps
      *
      * @return Workitem the created item
-     * @throws Exception when Request fails
+     * @throws Exception|AuthenticationException when Request fails
      */
     public function create(): Workitem
     {
-        $query = '?api-version=6.1-preview.3';
+        $query = '?api-version=7.1';
         $requestUrl = 'wit/workitems/$' . $this->type;
         $url = $this->apiClient->getProjectBaseUrl() . $requestUrl . $query;
 

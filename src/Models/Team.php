@@ -1,14 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Reb3r\ADOAPC\Models;
 
 /**
  * Docs: https://docs.microsoft.com/en-us/rest/api/azure/devops/core/teams/get%20all%20teams?view=azure-devops-rest-6.0#identity
- * 
+ *
  * @package Reb3r\ADOAPC\Models
  */
 class Team
 {
+    /**
+     * @param array<string, mixed> $identity
+     */
     public function __construct(
         private string $id,
         private string $description,
@@ -31,6 +36,9 @@ class Team
         return $this->description;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getIdentity(): array
     {
         return $this->identity;
@@ -61,6 +69,9 @@ class Team
         return $this->url;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function fromArray(array $data): self
     {
         return new self(
