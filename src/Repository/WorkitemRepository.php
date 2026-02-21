@@ -48,9 +48,9 @@ class WorkitemRepository
         array $tags,
         AzureDevOpsApiClient $apiClient
     ): Workitem {
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/work items/create?view=azure-devops-rest-6.1
+        // https://learn.microsoft.com/en-us/rest/api/azure/devops/wit/work-items/create?view=azure-devops-rest-7.1
         $type = 'Bug';
-        $query = '?api-version=6.1-preview.3';
+        $query = '?api-version=7.1';
         $requestUrl = 'wit/workitems/$' . $type;
         $url = $this->projectBaseUrl . $requestUrl . $query;
 
@@ -141,7 +141,7 @@ class WorkitemRepository
      */
     public function updateWorkitemReproStepsAndAttachments(Workitem $workitem, string $reproStepsText, array $attachments): void
     {
-        $query = '?api-version=6.0';
+        $query = '?api-version=7.1';
         $requestUrl = 'wit/workitems/' . $workitem->getId();
         $url = $this->projectBaseUrl . $requestUrl . $query;
 
@@ -209,7 +209,7 @@ class WorkitemRepository
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/comments/add?view=azure-devops-rest-6.0#commentmention
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/core/teams/get%20all%20teams?view=azure-devops-rest-6.0#webapiteam
-        $query = '?api-version=6.0-preview.3';
+        $query = '?api-version=7.1';
         $requestUrl = 'wit/workitems/' . $workitem->getId() . '/comments';
         $url = $this->projectBaseUrl . $requestUrl . $query;
 
@@ -284,9 +284,9 @@ class WorkitemRepository
      */
     public function searchWorkitem(string $searchtext, AzureDevOpsApiClient $apiClient): Workitem
     {
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/search/work%20item%20search%20results/fetch%20work%20item%20search%20results?view=azure-devops-rest-6.0
+        // https://learn.microsoft.com/en-us/rest/api/azure/devops/search/work-item-search-results/fetch-work-item-search-results?view=azure-devops-rest-7.1
 
-        $query = '?api-version=6.0-preview.1';
+        $query = '?api-version=7.1';
         $requestUrl = 'search/workitemsearchresults';
         $url = 'https://almsearch.dev.azure.com/'  . $this->organization . '/' . $this->project . '/_apis/' . $requestUrl . $query;
         $requestBody = [
@@ -356,7 +356,7 @@ class WorkitemRepository
         }
         $idsString = substr_replace($idsString, "", -1); // remove last comma
 
-        $query = '?api-version=6.0&ids=' . $idsString;
+        $query = '?api-version=7.1&ids=' . $idsString;
         $requestUrl = 'wit/workitems';
         $url = $this->projectBaseUrl  . $requestUrl . $query;
 

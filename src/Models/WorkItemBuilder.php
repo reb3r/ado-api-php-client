@@ -229,7 +229,7 @@ class WorkItemBuilder
      */
     public function create(): Workitem
     {
-        $query = '?api-version=6.1-preview.3';
+        $query = '?api-version=7.1';
         $requestUrl = 'wit/workitems/$' . $this->type;
         $url = $this->apiClient->getProjectBaseUrl() . $requestUrl . $query;
 

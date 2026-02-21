@@ -206,9 +206,8 @@ class Workitem
      */
     public function addComment(string $commentText): void
     {
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/comments/add?view=azure-devops-rest-6.0#commentmention
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/core/teams/get%20all%20teams?view=azure-devops-rest-6.0#webapiteam
-        $query = '?api-version=6.0-preview.3';
+        // https://learn.microsoft.com/en-us/rest/api/azure/devops/wit/comments/add-comment?view=azure-devops-rest-7.1
+        $query = '?api-version=7.1';
         $requestUrl = 'wit/workitems/' . $this->getId() . '/comments';
         $url = $this->azureApiClient->getProjectBaseUrl() . $requestUrl . $query;
 

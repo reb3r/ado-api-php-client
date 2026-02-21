@@ -278,8 +278,8 @@ class AzureDevOpsApiClient
      */
     public function uploadAttachment(string $fileName, string $content): AttachmentReference
     {
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/attachments/create?view=azure-devops-rest-6.0
-        $query = '?fileName=' . $fileName . '&api-version=6.0-preview.3';
+        // https://learn.microsoft.com/en-us/rest/api/azure/devops/wit/attachments/create?view=azure-devops-rest-7.1
+        $query = '?fileName=' . $fileName . '&api-version=7.1';
         $requestUrl = 'wit/attachments';
         $url = $this->projectBaseUrl . $requestUrl . $query;
 
@@ -353,8 +353,8 @@ class AzureDevOpsApiClient
      */
     public function getBacklogs(string $team): array
     {
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/work/backlogs/list?view=azure-devops-rest-6.0
-        $query = '?api-version=6.0-preview.1';
+        // https://learn.microsoft.com/en-us/rest/api/azure/devops/work/backlogs/list?view=azure-devops-rest-7.1
+        $query = '?api-version=7.1';
         $requestUrl = 'work/backlogs';
         $url = 'https://dev.azure.com/'  . $this->organization . '/' . $this->project . '/' . $team . '/_apis/' . $requestUrl . $query;
 
@@ -375,8 +375,8 @@ class AzureDevOpsApiClient
      */
     public function getBacklogWorkItems(Team $team, string $backlogId): array
     {
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/work/backlogs/get%20backlog%20level%20work%20items?view=azure-devops-rest-6.0
-        $query = '?api-version=6.0-preview.1';
+        // https://learn.microsoft.com/en-us/rest/api/azure/devops/work/backlogs/get-backlog-level-work-items?view=azure-devops-rest-7.1
+        $query = '?api-version=7.1';
         $requestUrl = 'work/backlogs/' . $backlogId . '/workitems';
         $url = 'https://dev.azure.com/'  . $this->organization . '/' . $this->project . '/' . $team->getId() . '/_apis/' . $requestUrl . $query;
 
@@ -403,8 +403,8 @@ class AzureDevOpsApiClient
      */
     public function getCurrentIterationPath(Team $team): string
     {
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/work/teamsettings/get?view=azure-devops-rest-6.0
-        $query = '?$timeframe=current&api-version=6.0';
+        // https://learn.microsoft.com/en-us/rest/api/azure/devops/work/iterations/list?view=azure-devops-rest-7.1
+        $query = '?$timeframe=current&api-version=7.1';
         $requestUrl = 'work/teamsettings/iterations';
         $url = $this->baseUrl . $this->organization  . '/' . $this->project . '/' . $team->getId() . '/_apis/' . $requestUrl . $query;
 
@@ -434,8 +434,8 @@ class AzureDevOpsApiClient
      */
     public function getTeams(): array
     {
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/core/teams/get%20all%20teams?view=azure-devops-rest-6.0
-        $query = '?api-version=6.0';
+        // https://learn.microsoft.com/en-us/rest/api/azure/devops/core/teams/get-teams?view=azure-devops-rest-7.1
+        $query = '?api-version=7.1';
         $requestUrl = 'teams';
         $url = 'https://dev.azure.com/'  . $this->organization .  '/_apis/projects/' . $this->project . '/' . $requestUrl . $query;
 
@@ -465,8 +465,8 @@ class AzureDevOpsApiClient
      */
     public function getAllTeams(): array
     {
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/core/teams/get-all-teams?view=azure-devops-rest-6.0
-        $query = '?api-version=6.0-preview.3';
+        // https://learn.microsoft.com/en-us/rest/api/azure/devops/core/teams/get-all-teams?view=azure-devops-rest-7.1
+        $query = '?api-version=7.1';
         $requestUrl = '/_apis/teams';
         $url = $this->baseUrl . $this->organization . $requestUrl . $query;
         $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
@@ -494,8 +494,8 @@ class AzureDevOpsApiClient
      */
     public function getTeam(string $teamId): Team
     {
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/core/teams/get?view=azure-devops-rest-6.0
-        $query = '?api-version=6.0';
+        // https://learn.microsoft.com/en-us/rest/api/azure/devops/core/teams/get?view=azure-devops-rest-7.1
+        $query = '?api-version=7.1';
         $requestUrl = 'teams/' . $teamId;
         $url = 'https://dev.azure.com/'  . $this->organization .  '/_apis/projects/' . $this->project . '/' . $requestUrl . $query;
 
@@ -516,7 +516,7 @@ class AzureDevOpsApiClient
     public function getRootQueryFolders(int $depth = 0): array
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/queries/list?view=azure-devops-rest-6.0
-        $query = '?$depth=' . $depth . '&api-version=6.0';
+        $query = '?$depth=' . $depth . '&api-version=7.1';
         $requestUrl = '_apis/wit/queries';
         $url = 'https://dev.azure.com/'  . $this->organization .  '/' . $this->project . '/' . $requestUrl . $query;
 
@@ -560,7 +560,7 @@ class AzureDevOpsApiClient
      */
     public function getQueryResultById(Team $team, string $queryId): array
     {
-        $query = '?api-version=6.0';
+        $query = '?api-version=7.1';
         $requestUrl = '/_apis/wit/wiql/' . $queryId;
         $url = $this->baseUrl . $this->organization  . '/' . $this->project . '/' . $team->getId() . $requestUrl . $query;
         $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
@@ -585,8 +585,8 @@ class AzureDevOpsApiClient
      */
     public function getProjects(): array
     {
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/core/projects/list?view=azure-devops-rest-6.0
-        $query = '?api-version=6.0';
+        // https://learn.microsoft.com/en-us/rest/api/azure/devops/core/projects/list?view=azure-devops-rest-7.1
+        $query = '?api-version=7.1';
         $requestUrl = '/_apis/projects';
         $url = $this->baseUrl . $this->organization . $requestUrl . $query;
         $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
@@ -615,8 +615,8 @@ class AzureDevOpsApiClient
      */
     public function getProject(string $projectId): Project
     {
-        // https://docs.microsoft.com/en-us/rest/api/azure/devops/core/projects/list?view=azure-devops-rest-6.0
-        $query = '?api-version=6.0';
+        // https://learn.microsoft.com/en-us/rest/api/azure/devops/core/projects/get?view=azure-devops-rest-7.1
+        $query = '?api-version=7.1';
         $requestUrl = '/_apis/projects/' . $projectId;
         $url = $this->baseUrl . $this->organization . $requestUrl . $query;
         $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
@@ -641,7 +641,7 @@ class AzureDevOpsApiClient
      */
     public function getWorkItemTypes(): array
     {
-        $query = '?api-version=7.1-preview.2';
+        $query = '?api-version=7.1';
         $requestUrl = '/' . $this->project . '/_apis/wit/workitemtypes';
         $url = $this->baseUrl . $this->organization . $requestUrl . $query;
         $response = $this->guzzle->get($url, ['headers' => $this->getAuthHeader()]);
