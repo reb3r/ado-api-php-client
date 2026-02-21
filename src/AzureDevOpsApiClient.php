@@ -49,6 +49,9 @@ class AzureDevOpsApiClient
         $this->guzzle = new Client();
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getAuthHeader(): array
     {
         if (empty($this->username)) {
@@ -112,7 +115,10 @@ class AzureDevOpsApiClient
         return $this->sendPost($url, $headers, $body);
     }
 
-    private function sendPost($url, $headers, $body): ResponseInterface
+    /**
+     * @param array<string, string> $headers
+     */
+    private function sendPost(string $url, array $headers, string $body): ResponseInterface
     {
         $headers = array_merge($headers, $this->getAuthHeader());
 
@@ -483,6 +489,10 @@ class AzureDevOpsApiClient
      * @throws WorkItemNotUniqueException if more than one workitem is found
      * @throws Exception when Request fails
      */
+    /**
+     * @param array<int> $ids
+     * @return array<Workitem>
+     */
     public function getWorkitemsById(array $ids): array
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/search/work%20item%20search%20results/fetch%20work%20item%20search%20results?view=azure-devops-rest-6.0
@@ -519,6 +529,9 @@ class AzureDevOpsApiClient
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     public function getBacklogs(string $team): array
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/work/backlogs/list?view=azure-devops-rest-6.0
@@ -538,6 +551,9 @@ class AzureDevOpsApiClient
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getBacklogWorkItems(Team $team, string $backlogId): array
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/work/backlogs/get%20backlog%20level%20work%20items?view=azure-devops-rest-6.0
@@ -593,6 +609,7 @@ class AzureDevOpsApiClient
 
     /**
      * Get the teams of the configured organization and project
+     * @return array<Team>
      * @throws Exception
      */
     public function getTeams(): array
@@ -620,7 +637,7 @@ class AzureDevOpsApiClient
 
     /**
      * Get all the teams visible by api
-     * @return array
+     * @return array<Team>
      * @throws GuzzleException
      * @throws RuntimeException
      * @throws Exception
@@ -671,6 +688,9 @@ class AzureDevOpsApiClient
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     public function getRootQueryFolders(int $depth = 0): array
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/queries/list?view=azure-devops-rest-6.0
@@ -690,6 +710,9 @@ class AzureDevOpsApiClient
         throw new Exception('Request to AzureDevOps failed: ' . $response->getStatusCode());
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     public function getAllQueries(): array
     {
         $queryFolders = $this->getRootQueryFolders(1);
@@ -706,9 +729,9 @@ class AzureDevOpsApiClient
     /**
      * @see https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/wiql/query%20by%20id?view=azure-devops-rest-6.0
      *
-     * @param string $teamname
+     * @param Team $team
      * @param string $queryId
-     * @return array
+     * @return array<int, array<string, mixed>>
      * @throws Exception
      * @throws GuzzleException
      * @throws RuntimeException
@@ -732,12 +755,12 @@ class AzureDevOpsApiClient
 
     /**
      * Gets the projects
-     * @return array
+     * @return array<Project>
      * @throws GuzzleException
      * @throws RuntimeException
      * @throws Exception
      */
-    public function getProjects()
+    public function getProjects(): array
     {
         // https://docs.microsoft.com/en-us/rest/api/azure/devops/core/projects/list?view=azure-devops-rest-6.0
         $query = '?api-version=6.0';
@@ -785,7 +808,7 @@ class AzureDevOpsApiClient
 
     /**
      * Returns the list of work item types
-     * @return array
+     * @return array<int, array<string, mixed>>
      * @throws GuzzleException
      * @throws RuntimeException
      * @throws AuthenticationException

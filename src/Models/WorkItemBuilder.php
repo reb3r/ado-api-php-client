@@ -9,9 +9,10 @@ use Reb3r\ADOAPC\Exceptions\Exception;
 class WorkItemBuilder
 {
     /**
-     * The request body  
-     * 
-     * @var array */
+     * The request body
+     *
+     * @var array<string|int, array<string, mixed>>
+     */
     public $requestBody = [];
 
     /**  @var AzureDevOpsApiClient */

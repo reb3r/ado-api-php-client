@@ -9,11 +9,13 @@ class Workitem
 {
     private ?string $htmlLink = null;
 
+    /**
+     * @param array<string, mixed> $project
+     */
     public function __construct(
         private string $id,
         private string $title,
         private array $project,
-        private array $links,
         private string $url,
         private string $state,
         private string $createddate,
@@ -154,7 +156,7 @@ class Workitem
      * ]
      * Array can be empty!
      *
-     * @return array
+     * @return array<string, array{name: string, content: string}>
      */
     public function getFieldsWithTextArea(bool $withEmbeddedADOImages = false): array
     {
@@ -214,13 +216,15 @@ class Workitem
         $this->azureApiClient->post($url, json_encode($requestBody));
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function fromArray(array $data, AzureDevOpsApiClient $azureApiClient): self
     {
         return new self(
             $data['id'],
             $data['fields']['System.Title'] ?? '',
             $data['project'] ?? [],
-            $data['links'] ?? [],
             $data['url'],
             $data['fields']['System.State'] ?? '',
             $data['fields']['System.CreatedDate'] ?? '',
