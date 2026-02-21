@@ -161,8 +161,14 @@ final class WorkItemBuilderTest extends TestCase
     public function testAttachmentsAddsToRequestBody(): void
     {
         $attachments = [
-            \Reb3r\ADOAPC\Models\AttachmentReference::fromArray(['azureDevOpsUrl' => 'http://attachment1.url']),
-            \Reb3r\ADOAPC\Models\AttachmentReference::fromArray(['azureDevOpsUrl' => 'http://attachment2.url'])
+            \Reb3r\ADOAPC\Models\AttachmentReference::fromArray([
+                'id' => '1',
+                'url' => 'http://attachment1.url'
+            ]),
+            \Reb3r\ADOAPC\Models\AttachmentReference::fromArray([
+                'id' => '2',
+                'url' => 'http://attachment2.url'
+            ])
         ];
 
         $builder = WorkItemBuilder::buildBug($this->apiClient);

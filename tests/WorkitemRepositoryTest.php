@@ -95,7 +95,10 @@ final class WorkitemRepositoryTest extends TestCase
 
         $this->mockHandler->append(new Response(200, [], $responseBody));
 
-        $attachments = [\Reb3r\ADOAPC\Models\AttachmentReference::fromArray(['azureDevOpsUrl' => 'http://attachment.url'])];
+        $attachments = [\Reb3r\ADOAPC\Models\AttachmentReference::fromArray([
+            'id' => '1',
+            'url' => 'http://attachment.url'
+        ])];
         $workitem = $this->repository->createBug('Test Bug', 'Desc', $attachments, [], $this->apiClient);
 
         $this->assertInstanceOf(Workitem::class, $workitem);
